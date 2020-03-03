@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bee-api
+spec:
+  selector:
+    matchLabels:
+      app: bee-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bee-api
+    spec:
+      containers:
+      - name: bee-api
+        image: bee-api:1.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5001
