@@ -50,24 +50,25 @@ resource "kubernetes_deployment" "bee-api-api" {
           }
 
           env {
-              name = "DATABASE_DIR"
-              value_from {
-                config_map_key_ref {
-                  name = "bee-api-config"
-                  key  = "DATABASE_DIR"
-                }
+            name = "DATABASE_DIR"
+            value_from {
+              config_map_key_ref {
+                name = "bee-api-config"
+                key  = "DATABASE_DIR"
               }
             }
+          }
 
           env {
-              name = "DATABASE_USER"
-              value_from {
-                secret_key_ref {
-                  name = "bee-api-secrets"
-                  key  = "DATABASE_USER"
-                }
+            name = "DATABASE_USER"
+            value_from {
+              secret_key_ref {
+                name = "bee-api-secrets"
+                key  = "DATABASE_USER"
               }
             }
+          }
+          
           env {
               name = "DATABASE_PASSWORD"
               value_from {
