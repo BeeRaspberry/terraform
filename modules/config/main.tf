@@ -56,7 +56,7 @@ resource "kubernetes_persistent_volume_claim" "bee_api_volume_claim" {
 resource "kubernetes_config_map" "bee_api_configmap" {
   metadata {
     name = "bee-api-config"
-    namespace =  kubernetes_namespace.a_namespace.metadata[0].name
+    namespace = kubernetes_namespace.a_namespace.metadata[0].name
   }
 
   data = {
