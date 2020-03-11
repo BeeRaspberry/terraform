@@ -3,10 +3,12 @@ kind: Service
 metadata:
   name: bee-api-service
   labels:
-    run: bee-api
+    service: bee-api
+    environment: development
 spec:
   ports:
-  - port: 5001
+  - port: 5000
     protocol: TCP
   selector:
-    run: bee-api
+    app: bee-api
+  type: LoadBalancer

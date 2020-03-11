@@ -2,6 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bee-api
+  labels:
+    app: bee-api
+    environment: development
+    name: bee-api
+
 spec:
   selector:
     matchLabels:
@@ -11,10 +16,19 @@ spec:
     metadata:
       labels:
         app: bee-api
+        environment: development
+        name: bee-api
     spec:
+      volumes:
+        - name: task-pv-storage
+          persistentVolumeClaim:
+            claimName: task-pv-claim
       containers:
       - name: bee-api
         image: bee-api:1.0
         imagePullPolicy: Never
         ports:
-        - containerPort: 5001
+        - containerPort: 5000
+        volumeMounts:
+          - mountPath: "/app/data"
+            name: task-pv-storage
