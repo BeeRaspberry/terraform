@@ -4,7 +4,7 @@ resource "kubernetes_deployment" "bee-api-api" {
   metadata {
     name = "bee-api-api"
     labels = {
-      app = "bee-api-api"
+      app         = "bee-api-api"
       environment = var.environment
     }
     namespace = var.namespace
@@ -25,8 +25,8 @@ resource "kubernetes_deployment" "bee-api-api" {
       }
       spec {
         container {
-          image = "bee-api:1.2"
-          name  = "bee-api-api"
+          image             = "bee-api:1.2"
+          name              = "bee-api-api"
           image_pull_policy = "Never"
 
           port {
@@ -54,7 +54,7 @@ resource "kubernetes_deployment" "bee-api-api" {
               value_from {
                 config_map_key_ref {
                   name = "bee-api-config"
-                  key = "DATABASE_DIR"
+                  key  = "DATABASE_DIR"
                 }
               }
             }
@@ -64,7 +64,7 @@ resource "kubernetes_deployment" "bee-api-api" {
               value_from {
                 secret_key_ref {
                   name = "bee-api-secrets"
-                  key = "DATABASE_USER"
+                  key  = "DATABASE_USER"
                 }
               }
             }
@@ -73,7 +73,7 @@ resource "kubernetes_deployment" "bee-api-api" {
               value_from {
                 secret_key_ref {
                   name = "bee-api-secrets"
-                  key = "DATABASE_PASSWORD"
+                  key  = "DATABASE_PASSWORD"
                 }
               }
             }
@@ -82,7 +82,7 @@ resource "kubernetes_deployment" "bee-api-api" {
               value_from {
                 secret_key_ref {
                   name = "bee-api-secrets"
-                  key = "DATABASE_HOST"
+                  key  = "DATABASE_HOST"
                 }
               }
             }
@@ -91,7 +91,7 @@ resource "kubernetes_deployment" "bee-api-api" {
               value_from {
                 secret_key_ref {
                   name = "bee-api-secrets"
-                  key = "DATABASE_PORT"
+                  key  = "DATABASE_PORT"
                 }
               }
             }
@@ -112,7 +112,7 @@ resource "kubernetes_service" "bee-api-terraform-service" {
   metadata {
     name = "bee-api-terraform-service"
     labels = {
-      app = "bee-api-terraform-service"
+      app         = "bee-api-terraform-service"
       environment = var.environment
     }
     namespace = var.namespace
