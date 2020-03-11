@@ -68,34 +68,36 @@ resource "kubernetes_deployment" "bee-api-api" {
               }
             }
           }
-          
+
           env {
-              name = "DATABASE_PASSWORD"
-              value_from {
-                secret_key_ref {
-                  name = "bee-api-secrets"
-                  key  = "DATABASE_PASSWORD"
-                }
+            name = "DATABASE_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = "bee-api-secrets"
+                key  = "DATABASE_PASSWORD"
               }
             }
+          }
+
           env {
-              name = "DATABASE_HOST"
-              value_from {
-                secret_key_ref {
-                  name = "bee-api-secrets"
-                  key  = "DATABASE_HOST"
-                }
+            name = "DATABASE_HOST"
+            value_from {
+              secret_key_ref {
+                name = "bee-api-secrets"
+                key  = "DATABASE_HOST"
               }
             }
+          }
+
           env {
-              name = "DATABASE_PORT"
-              value_from {
-                secret_key_ref {
-                  name = "bee-api-secrets"
-                  key  = "DATABASE_PORT"
-                }
+            name = "DATABASE_PORT"
+            value_from {
+              secret_key_ref {
+                name = "bee-api-secrets"
+                key  = "DATABASE_PORT"
               }
             }
+          }
         }
 
         volume {
