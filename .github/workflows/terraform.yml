@@ -13,36 +13,30 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: actions/checkout@master
-      - name: 'Print Project Dir setting'
-        run: echo ${{ env.PROJECT_DIR }}
+
       - name: 'Change working Directory'
         run: export PROJECT_DIR=$WORKING_DIR
-      - name: 'New Project Dir'
-        run: echo ${{ env.PROJECT_DIR }}
- #     - name: 'Terraform Format'
- #       uses: hashicorp/terraform-github-actions@master
- #       with:
- #         tf_actions_version: 0.12.13
- #         tf_actions_subcommand: 'fmt'
- #       working-directory: ${{ env.working_directory }}
 
- #     - name: 'Terraform Init'
- #       uses: hashicorp/terraform-github-actions@master
- #       with:
- #         tf_actions_version: 0.12.13
- #         tf_actions_subcommand: 'init'
- #       working-directory: ${{ env.working_directory }}
+      - name: 'Terraform Format'
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.13
+          tf_actions_subcommand: 'fmt'
 
- #     - name: 'Terraform Validate'
- #       uses: hashicorp/terraform-github-actions@master
- #       with:
- #         tf_actions_version: 0.12.13
- #         tf_actions_subcommand: 'validate'
- #       working-directory: ${{ env.working_directory }}
+      - name: 'Terraform Init'
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.13
+          tf_actions_subcommand: 'init'
 
- #     - name: 'Terraform Plan'
- #       uses: hashicorp/terraform-github-actions@master
- #       with:
- #         tf_actions_version: 0.12.13
- #         tf_actions_subcommand: 'plan'
- #       working-directory: ${{ env.working_directory }}
+      - name: 'Terraform Validate'
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.13
+          tf_actions_subcommand: 'validate'
+
+      - name: 'Terraform Plan'
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.13
+          tf_actions_subcommand: 'plan'
