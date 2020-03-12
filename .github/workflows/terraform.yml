@@ -8,7 +8,7 @@ jobs:
     name: 'Terraform'
     runs-on: ubuntu-latest
     env:
-      WORKING_DIR: ./terraform
+      tf_working_dir: ./terraform
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TF_ACTIONS_VERSION: 0.12.13
 
@@ -16,12 +16,6 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@master
 
-      - name: 'Change PROJECT_DIR'
-        run: export PROJECT_DIR=${GITHUB_WORKSPACE}/terraform
-
-      - name: 'Change Working Directory'
-        run: cd ${PROJECT_DIR}
-        
       - name: 'Terraform Format'
         uses: hashicorp/terraform-github-actions@master
         with:
