@@ -1,6 +1,7 @@
 name: 'Terraform Code Check'
 on:
   - pull_request
+  - push
 
 jobs:
   terraform:
