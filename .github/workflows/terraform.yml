@@ -36,8 +36,8 @@ jobs:
           tf_actions_version: ${{ env.TF_ACTIONS_VERSION }}
           tf_actions_subcommand: 'validate'
 
-      - name: 'Terraform Plan'
-        uses: hashicorp/terraform-github-actions@master
-        with:
-          tf_actions_version: ${{ env.TF_ACTIONS_VERSION }}
-          tf_actions_subcommand: 'plan'
+#      - name: 'Terraform Plan'
+#        uses: hashicorp/terraform-github-actions@master
+#        with:
+#          tf_actions_version: ${{ env.TF_ACTIONS_VERSION }}
+#          tf_actions_subcommand: 'plan'
