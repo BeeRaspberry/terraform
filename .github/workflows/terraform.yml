@@ -16,9 +16,12 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@master
 
-      - name: 'Change working Directory'
+      - name: 'Change PROJECT_DIR'
         run: export PROJECT_DIR=${GITHUB_WORKSPACE}/terraform
 
+      - name: 'Change Working Directory'
+        run: cd ${PROJECT_DIR}
+        
       - name: 'Terraform Format'
         uses: hashicorp/terraform-github-actions@master
         with:
