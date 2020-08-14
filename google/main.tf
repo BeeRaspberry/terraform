@@ -107,11 +107,8 @@ module "bastion" {
   shielded_vm      = "false"
 }
 
-# This is an adaption of terraform-google-modules/kubernetes-engine/google//modules/safer-cluster
-# safer-cluster doesn't allow basic auth, but gardener install requires it.
-# instead of having two terraform code bases, this was done.
 module "gke" {
-  source                     = "terraform-google-modules/kubernetes-engine/google//modules/beta-private-cluster"
+  source                     = "terraform-google-modules/kubernetes-engine/google//modules/safer-cluster-update-variant"
   project_id                 = module.enabled_google_apis.project_id
   name                       = var.cluster_name
   region                     = var.region
@@ -130,49 +127,45 @@ module "gke" {
     display_name = "Bastion Host"
   }]
 
-  horizontal_pod_autoscaling = var.horizontal_pod_autoscaling
-  http_load_balancing        = var.http_load_balancing
-  network_policy             = true
-  maintenance_start_time     = var.maintenance_start_time
+  horizontal_pod_autoscaling    = var.horizontal_pod_autoscaling
+  http_load_balancing           = var.http_load_balancing
+//  network_policy                = true
+  maintenance_start_time        = var.maintenance_start_time
 
-  initial_node_count         = var.initial_node_count
-  remove_default_node_pool   = true
+  initial_node_count            = var.initial_node_count
+//  remove_default_node_pool      = true
 
-  node_pools                 = var.node_pools
-  node_pools_labels          = var.node_pools_labels
-  node_pools_metadata        = var.node_pools_metadata
-  node_pools_taints          = var.node_pools_taints
-  node_pools_tags            = var.node_pools_tags
+  node_pools                    = var.node_pools
+  node_pools_labels             = var.node_pools_labels
+  node_pools_metadata           = var.node_pools_metadata
+  node_pools_taints             = var.node_pools_taints
+  node_pools_tags               = var.node_pools_tags
 
-  node_pools_oauth_scopes    = var.node_pools_oauth_scopes
-  stub_domains               = {}
+  node_pools_oauth_scopes       = var.node_pools_oauth_scopes
+  stub_domains                  = {}
 // Doesn't work... unable to execute kubectl commands once bastion proxy is required.
 //  stub_domains               = var.domain_name != "" ? local.stub_domains : {}
-  upstream_nameservers       = var.upstream_nameservers
+  upstream_nameservers          = var.upstream_nameservers
 
-  logging_service            = var.logging_service
-  monitoring_service         = var.monitoring_service
+  logging_service               = var.logging_service
+  monitoring_service            = var.monitoring_service
 
-  create_service_account        = var.compute_engine_service_account == "" ? true : false
-  service_account               = var.compute_engine_service_account
+//  create_service_account        = var.compute_engine_service_account == "" ? true : false
+//  service_account               = var.compute_engine_service_account
   registry_project_id           = var.registry_project_id
   grant_registry_access         = true
 
-  basic_auth_username           = var.basic_auth_username
-  basic_auth_password           = var.basic_auth_password
-
-  issue_client_certificate      = false
+//  issue_client_certificate      = false
 
   cluster_resource_labels       = var.cluster_resource_labels
 
-  // We enable private endpoints to limit exposure.
-  enable_private_endpoint       = var.enable_private_endpoint
-  deploy_using_private_endpoint = true
+  enable_private_endpoint       = false
+//  deploy_using_private_endpoint = true
 
   // Private nodes better control public exposure, and reduce
   // the ability of nodes to reach to the Internet without
   // additional configurations.
-  enable_private_nodes          = true
+//  enable_private_nodes          = true
 
   master_ipv4_cidr_block        = var.master_ipv4_cidr_block
 
@@ -185,11 +178,11 @@ module "gke" {
   database_encryption           = var.database_encryption
 
   // We suggest to define policies about  which images can run on a cluster.
-  enable_binary_authorization   = true
+//  enable_binary_authorization   = true
 
-  // Define PodSecurityPolicies for differnet applications.
+  // Define PodSecurityPolicies for different applications.
   // Example: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example
-  pod_security_policy_config    = var.pod_security_policy_config
+//  pod_security_policy_config    = var.pod_security_policy_config
 
   resource_usage_export_dataset_id = var.resource_usage_export_dataset_id
 
@@ -203,7 +196,7 @@ module "gke" {
   enable_vertical_pod_autoscaling = var.enable_vertical_pod_autoscaling
 
   // We enable identity namespace by default.
-  identity_namespace = "${var.project_id}.svc.id.goog"
+  //identity_namespace = "${var.project_id}.svc.id.goog"
 
   authenticator_security_group = var.authenticator_security_group
 

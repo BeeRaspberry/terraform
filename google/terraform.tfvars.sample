@@ -1,0 +1,5 @@
+project_id = "<your project id>"
+bastion_members = ["<email address"]
+ip_source_ranges_ssh = ["<ip to allow ssh from>"]
+cluster_name = "<cluster name>"
+domain_name = "<domain name>"
