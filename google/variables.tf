@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
+variable "cred_file" {
+  description = "full path of credential.json, when used."
+  default     = ""
+}
+
+variable "credential" {
+  description = "credential.json stored in a variable. Takes precendence over cred_file"
+  default     = {}
+}
+
 variable "project_id" {
   description = "The project ID to host the cluster in"
 }
