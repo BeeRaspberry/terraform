@@ -3,3 +3,6 @@ bastion_members = ["user:<email address"]
 ip_source_ranges_ssh = ["<ip to allow ssh from>"]
 cluster_name = "<cluster name>"
 domain_name = "<domain name>"
+credential           = <<EOF
+<contents of credential.json>
+EOF
