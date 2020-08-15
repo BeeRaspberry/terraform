@@ -10,18 +10,18 @@ jobs:
     env:
       WORKING_DIR: ./terraform
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      TF_ACTIONS_VERSION: 0.12.13
+      TF_ACTIONS_VERSION: 0.12.28
 
     steps:
       - name: 'Checkout'
         uses: actions/checkout@master
 
-      - name: 'Terraform Format'
-        uses: hashicorp/terraform-github-actions@master
-        with:
-          tf_actions_version: ${{ env.TF_ACTIONS_VERSION }}
-          tf_actions_working_dir: ${{ env.WORKING_DIR }}
-          tf_actions_subcommand: 'fmt'
+ #     - name: 'Terraform Format'
+ #       uses: hashicorp/terraform-github-actions@master
+ #       with:
+ #         tf_actions_version: ${{ env.TF_ACTIONS_VERSION }}
+ #         tf_actions_working_dir: ${{ env.WORKING_DIR }}
+ #         tf_actions_subcommand: 'fmt'
 
       - name: 'Terraform Init'
         uses: hashicorp/terraform-github-actions@master
