@@ -114,7 +114,7 @@ variable "ip_source_ranges_ssh" {
 variable "node_pools" {
   description = "Node pool(s) for GKE"
   type        = list(map(string))
-  default     = [
+  default = [
     {
       preemptible   = true
       name          = "default-node-pool"
@@ -314,11 +314,11 @@ variable "pod_security_policy_config" {
 }
 
 variable "notification_list" {
-  type           = list(object({
+  type = list(object({
     display_name = string
     email        = string
   }))
-  default        = [
+  default = [
     {
       display_name = "Bart"
       email        = "bart@springfield.com"
@@ -337,7 +337,7 @@ variable "notification_list" {
 locals {
   bastion_name = format("%s-bastion", var.cluster_name)
   network_name = format("%s-network", var.cluster_name)
-  subnet_name = format("%s-subnet", var.cluster_name)
+  subnet_name  = format("%s-subnet", var.cluster_name)
   stub_domains = {
     "${var.domain_name}" = [
       "10.254.154.11",

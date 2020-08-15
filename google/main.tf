@@ -115,83 +115,57 @@ module "bastion" {
 }
 
 module "gke" {
-  source                     = "terraform-google-modules/kubernetes-engine/google//modules/safer-cluster-update-variant"
-  project_id                 = module.enabled_google_apis.project_id
-  name                       = var.cluster_name
-  region                     = var.region
-  regional                   = var.regional
+  source     = "terraform-google-modules/kubernetes-engine/google//modules/safer-cluster-update-variant"
+  project_id = module.enabled_google_apis.project_id
+  name       = var.cluster_name
+  region     = var.region
+  regional   = var.regional
 
-  network                    = module.vpc.network_name
-  network_project_id         = var.network_project_id
-  kubernetes_version         = var.kubernetes_version 
-
-  subnetwork                 = module.vpc.subnets_names[0]
-  ip_range_pods              = module.vpc.subnets_secondary_ranges[0].*.range_name[0]
-  ip_range_services          = module.vpc.subnets_secondary_ranges[0].*.range_name[1]
-  
   master_authorized_networks = [{
     cidr_block   = "${module.bastion.ip_address}/32"
     display_name = "Bastion Host"
   }]
 
-  horizontal_pod_autoscaling    = var.horizontal_pod_autoscaling
-  http_load_balancing           = var.http_load_balancing
-//  network_policy                = true
-  maintenance_start_time        = var.maintenance_start_time
-
-  initial_node_count            = var.initial_node_count
-//  remove_default_node_pool      = true
-
-  node_pools                    = var.node_pools
-  node_pools_labels             = var.node_pools_labels
-  node_pools_metadata           = var.node_pools_metadata
-  node_pools_taints             = var.node_pools_taints
-  node_pools_tags               = var.node_pools_tags
-
-  node_pools_oauth_scopes       = var.node_pools_oauth_scopes
-  stub_domains                  = {}
-// Doesn't work... unable to execute kubectl commands once bastion proxy is required.
-//  stub_domains               = var.domain_name != "" ? local.stub_domains : {}
-  upstream_nameservers          = var.upstream_nameservers
-
-  logging_service               = var.logging_service
-  monitoring_service            = var.monitoring_service
-
-//  create_service_account        = var.compute_engine_service_account == "" ? true : false
-//  service_account               = var.compute_engine_service_account
-  registry_project_id           = var.registry_project_id
-  grant_registry_access         = true
-
-//  issue_client_certificate      = false
-
-  cluster_resource_labels       = var.cluster_resource_labels
-
-  enable_private_endpoint       = false
-//  deploy_using_private_endpoint = true
-
-  // Private nodes better control public exposure, and reduce
-  // the ability of nodes to reach to the Internet without
-  // additional configurations.
-//  enable_private_nodes          = true
-
-  master_ipv4_cidr_block        = var.master_ipv4_cidr_block
+  network                          = module.vpc.network_name
+  network_project_id               = var.network_project_id
+  kubernetes_version               = var.kubernetes_version
+  subnetwork                       = module.vpc.subnets_names[0]
+  ip_range_pods                    = module.vpc.subnets_secondary_ranges[0].*.range_name[0]
+  ip_range_services                = module.vpc.subnets_secondary_ranges[0].*.range_name[1]
+  horizontal_pod_autoscaling       = var.horizontal_pod_autoscaling
+  http_load_balancing              = var.http_load_balancing
+  maintenance_start_time           = var.maintenance_start_time
+  initial_node_count               = var.initial_node_count
+  node_pools                       = var.node_pools
+  node_pools_labels                = var.node_pools_labels
+  node_pools_metadata              = var.node_pools_metadata
+  node_pools_taints                = var.node_pools_taints
+  node_pools_tags                  = var.node_pools_tags
+  enable_vertical_pod_autoscaling  = var.enable_vertical_pod_autoscaling
+  authenticator_security_group     = var.authenticator_security_group
+  enable_shielded_nodes            = var.enable_shielded_nodes
+  skip_provisioners                = var.skip_provisioners
+  node_pools_oauth_scopes          = var.node_pools_oauth_scopes
+  upstream_nameservers             = var.upstream_nameservers
+  logging_service                  = var.logging_service
+  monitoring_service               = var.monitoring_service
+  registry_project_id              = var.registry_project_id
+  grant_registry_access            = true
+  cluster_resource_labels          = var.cluster_resource_labels
+  enable_private_endpoint          = false
+  master_ipv4_cidr_block           = var.master_ipv4_cidr_block
+  cloudrun                         = var.cloudrun
+  default_max_pods_per_node        = var.default_max_pods_per_node
+  database_encryption              = var.database_encryption
+  resource_usage_export_dataset_id = var.resource_usage_export_dataset_id
 
   // Istio is recommended for pod-to-pod communications.
-  istio                         = var.istio
-  cloudrun                      = var.cloudrun
-
-  default_max_pods_per_node     = var.default_max_pods_per_node
-
-  database_encryption           = var.database_encryption
-
-  // We suggest to define policies about  which images can run on a cluster.
-//  enable_binary_authorization   = true
+  istio = var.istio
 
   // Define PodSecurityPolicies for different applications.
   // Example: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example
-//  pod_security_policy_config    = var.pod_security_policy_config
+  //  pod_security_policy_config    = var.pod_security_policy_config
 
-  resource_usage_export_dataset_id = var.resource_usage_export_dataset_id
 
   // Sandbox is needed if the cluster is going to run any untrusted workload (e.g., user submitted code).
   // Sandbox can also provide increased protection in other cases, at some performance cost.
@@ -200,16 +174,10 @@ module "gke" {
   // Intranode Visibility enables you to capture flow logs for traffic between pods and create FW rules that apply to traffic between pods.
   enable_intranode_visibility = var.enable_intranode_visibility
 
-  enable_vertical_pod_autoscaling = var.enable_vertical_pod_autoscaling
+  // Doesn't work... unable to execute kubectl commands once bastion proxy is required.
+  //  stub_domains               = var.domain_name != "" ? local.stub_domains : {}
+  stub_domains = {}
 
-  // We enable identity namespace by default.
-  //identity_namespace = "${var.project_id}.svc.id.goog"
-
-  authenticator_security_group = var.authenticator_security_group
-
-  enable_shielded_nodes = var.enable_shielded_nodes
-
-  skip_provisioners = var.skip_provisioners
 }
 
 module "alerts" {
