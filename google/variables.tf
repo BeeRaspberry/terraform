@@ -30,7 +30,7 @@ variable "domain_name" {
 
 variable "region" {
   description = "The region to host the cluster in"
-  default     = "us-east"
+  default     = "us-east1"
 }
 
 variable "subnet_ip" {
@@ -336,7 +336,6 @@ variable "notification_list" {
 
 locals {
   bastion_name = format("%s-bastion", var.cluster_name)
-  bastion_zone = format("%s-a", var.region)
   network_name = format("%s-network", var.cluster_name)
   subnet_name = format("%s-subnet", var.cluster_name)
   stub_domains = {

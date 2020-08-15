@@ -16,9 +16,9 @@
 
 # Create DNS zone, if domain name is provided.
 resource "google_dns_managed_zone" "dns_zone" {
-  count       = var.domain_name != "" ? 1 : 0
-  name        = replace(var.domain_name, ".", "-")
-  dns_name    = "${var.domain_name}."
+  count    = var.domain_name != "" ? 1 : 0
+  name     = replace(var.domain_name, ".", "-")
+  dns_name = "${var.domain_name}."
 }
 
 module "enabled_google_apis" {
@@ -89,22 +89,29 @@ data "template_file" "startup_script" {
   EOF
 }
 
+data "google_compute_zones" "available" {
+  provider = google-beta
+
+  project = var.project_id
+  region  = var.region
+}
+
 module "bastion" {
-  source           = "terraform-google-modules/bastion-host/google"
-  version          = "~> 2.0"
-  network          = module.vpc.network_self_link
-  subnet           = module.vpc.subnets_self_links[0]
-  project          = module.enabled_google_apis.project_id
-  host_project     = module.enabled_google_apis.project_id
-  name             = local.bastion_name
-  zone             = local.bastion_zone
-  image_project    = "debian-cloud"
-  image_family     = "debian-10"
-  machine_type     = "g1-small"
-  disk_size_gb     = 20
-  startup_script   = data.template_file.startup_script.rendered
-  members          = var.bastion_members
-  shielded_vm      = "false"
+  source         = "terraform-google-modules/bastion-host/google"
+  version        = "~> 2.0"
+  network        = module.vpc.network_self_link
+  subnet         = module.vpc.subnets_self_links[0]
+  project        = module.enabled_google_apis.project_id
+  host_project   = module.enabled_google_apis.project_id
+  name           = local.bastion_name
+  zone           = data.google_compute_zones.available.names[0]
+  image_project  = "debian-cloud"
+  image_family   = "debian-10"
+  machine_type   = "g1-small"
+  disk_size_gb   = 20
+  startup_script = data.template_file.startup_script.rendered
+  members        = var.bastion_members
+  shielded_vm    = "false"
 }
 
 module "gke" {
