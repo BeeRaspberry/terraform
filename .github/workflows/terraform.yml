@@ -16,10 +16,15 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@master
 
+      - name: Where am I
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          ls
+          pwd
+
       - name: create terraform.tfvars
         working-directory: ${{ env.WORKING_DIR }}
         run: |
-          pwd
           cat <<EOF >terraform.tfvars
           project_id           = ${{ secrets.GCP_PROJECT_ID }}
           bastion_members      = ${{ secrets.BASTION_MEMBERS }}
