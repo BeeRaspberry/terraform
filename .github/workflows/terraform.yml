@@ -8,7 +8,7 @@ jobs:
     name: 'Terraform'
     runs-on: ubuntu-latest
     env:
-      WORKING_DIR: terraform/google
+      WORKING_DIR: ./google
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TF_ACTIONS_VERSION: 0.12.28
 
@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: Where am I
+        working-directory: ${{ env.WORKING_DIR }}
         run: |
           ls
           pwd
