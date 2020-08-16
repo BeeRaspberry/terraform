@@ -17,15 +17,17 @@ jobs:
         uses: actions/checkout@master
 
       - name: create terraform.tfvars
+        working-directory: ${{ env.WORKING_DIR }}
         run: |
+          pwd
           cat <<EOF >terraform.tfvars
           project_id           = ${{ secrets.GCP_PROJECT_ID }}
           bastion_members      = ${{ secrets.BASTION_MEMBERS }}
           ip_source_ranges_ssh = ${{ secrets.IP_SOURCES }}
           cluster_name         = ${{ secrets.CLUSTER_NAME }}
           domain_name          = ${{ secrets.DOMAIN_NAME }}
+          credential           = ${{ secrets.GCP_CREDENTIAL }}
           EOF
-          cat terraform.tfvars
  #     - name: 'Terraform Format'
  #       uses: hashicorp/terraform-github-actions@master
  #       with:
