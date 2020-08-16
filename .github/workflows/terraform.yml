@@ -16,11 +16,11 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@master
 
-      - name: Where am I
+      - name: Decrypt gcp credentials
         working-directory: ${{ env.WORKING_DIR }}
         run: |
-          ls
-          pwd
+          gpg --quiet --batch --yes --decrypt --passphrase="${{ secrets.GCP_PASSPHRASE }}" \
+          --output credentials.json github_credential.json.gpg
 
       - name: create terraform.tfvars
         working-directory: ${{ env.WORKING_DIR }}
@@ -31,8 +31,9 @@ jobs:
           ip_source_ranges_ssh = ${{ secrets.IP_SOURCES }}
           cluster_name         = ${{ secrets.CLUSTER_NAME }}
           domain_name          = ${{ secrets.DOMAIN_NAME }}
-          credential           = ${{ secrets.GCP_CREDENTIAL }}
+          cred_file            = "credentials.json"
           EOF
+          ls -l
  #     - name: 'Terraform Format'
  #       uses: hashicorp/terraform-github-actions@master
  #       with:
