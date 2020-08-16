@@ -91,7 +91,6 @@ data "template_file" "startup_script" {
 
 data "google_compute_zones" "available" {
   provider = google-beta
-
   project = var.project_id
   region  = var.region
 }

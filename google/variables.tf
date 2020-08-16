@@ -21,6 +21,7 @@ variable "cred_file" {
 
 variable "credential" {
   description = "credential.json stored in a variable. Takes precendence over cred_file"
+  default     = ""
 }
 
 variable "project_id" {
