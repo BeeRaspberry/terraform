@@ -28,9 +28,13 @@ variable "project_id" {
   description = "The project ID to host the cluster in"
 }
 
+variable "environment" {
+  default = "development"
+}
+
 variable "cluster_name" {
   description = "The name of the cluster"
-  default     = "safer-cluster-iap-bastion"
+  default     = "safer-cluster"
 }
 
 variable "domain_name" {
