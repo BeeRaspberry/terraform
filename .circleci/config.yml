@@ -15,6 +15,8 @@ workflows:
  #           - terraform/fmt
       - terraform/plan:
           checkout: true
+          path: google
+          var_file: terraform.tfvars.sample
           persist-workspace: true
           requires:
             - terraform/validate
