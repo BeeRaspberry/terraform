@@ -157,6 +157,7 @@ module "gke" {
   default_max_pods_per_node        = var.default_max_pods_per_node
   database_encryption              = var.database_encryption
   resource_usage_export_dataset_id = var.resource_usage_export_dataset_id
+  zones                            = var.regional == true ? data.google_compute_zones.available.names : [ data.google_compute_zones.available.names[0] ]
 
   // Istio is recommended for pod-to-pod communications.
   istio = var.istio
