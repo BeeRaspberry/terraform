@@ -125,6 +125,22 @@ variable "ip_source_ranges_ssh" {
   default     = []
 }
 
+variable "default_node_min_count" {
+  default = 1
+}
+
+variable "default_node_max_count" {
+  default = 1
+}
+
+variable "default_node_machine_type" {
+  default = "n2-standard-2"
+}
+
+variable "default_node_preemptible" {
+  default = true
+}
+
 variable "node_pools" {
   description = "Node pool(s) for GKE"
   type        = list(map(string))
@@ -143,7 +159,7 @@ variable "node_pools" {
       name          = "harness-node-pool"
       min_count     = 1
       max_count     = 1
-      machine_type  = "n2-standard-16"
+      machine_type  = "n2-standard-4"
       auto_upgrade  = true
       node_metadata = "GKE_METADATA_SERVER"
     }   
@@ -378,4 +394,24 @@ locals {
       "10.254.154.12",
     ]
   }
+  node_pools   = [
+      {
+        preemptible   = var.default_node_preemptible
+        name          = "default-node-pool"
+        min_count     = var.default_node_min_count
+        max_count     = var.default_node_max_count
+        machine_type  = var.default_node_machine_type
+        auto_upgrade  = true
+        node_metadata = "GKE_METADATA_SERVER"
+      },
+      {
+        preemptible   = false
+        name          = "harness-node-pool"
+        min_count     = 1
+        max_count     = 1
+        machine_type  = "n2-standard-4"
+        auto_upgrade  = true
+        node_metadata = "GKE_METADATA_SERVER"
+    }   
+  ]
 }
