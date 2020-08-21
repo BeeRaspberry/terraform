@@ -2,7 +2,7 @@
 version: 2.1
 # Use a package of configuration called an orb.
 orbs:
-  terraform: 'circleci/terraform@dev:alpha'
+  terraform: circleci/terraform@1.0.1
 workflows:
   check_terraform:
     jobs:
