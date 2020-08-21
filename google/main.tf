@@ -179,7 +179,7 @@ module "gke" {
 
 }
 
-module "alerts" {
-  source            = "./modules/alerts"
-  notification_list = var.notification_list
-}
+#module "alerts" {
+#  source            = "./modules/alerts"
+#  notification_list = var.notification_list
+#}
