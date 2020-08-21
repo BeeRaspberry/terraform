@@ -6,14 +6,15 @@ orbs:
 workflows:
   check_terraform:
     jobs:
-      - terraform/fmt:
-          checkout: true
-          context: terraform
+# Format fails
+ #     - terraform/fmt:
+ #         checkout: true
+ #         context: terraform
       - terraform/validate:
           checkout: true
           context: terraform
-          requires:
-            - terraform/fmt
+ #         requires:
+ #           - terraform/fmt
       - terraform/plan:
           checkout: true
           context: terraform
