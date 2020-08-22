@@ -154,7 +154,7 @@ variable "node_pools" {
       auto_upgrade  = true
       node_metadata = "GKE_METADATA_SERVER"
     },
-     {
+    {
       preemptible   = false
       name          = "harness-node-pool"
       min_count     = 1
@@ -162,7 +162,7 @@ variable "node_pools" {
       machine_type  = "n2-standard-4"
       auto_upgrade  = true
       node_metadata = "GKE_METADATA_SERVER"
-    }   
+    }
   ]
 }
 
@@ -196,7 +196,7 @@ variable "node_pools_taints" {
 
   default = {
     all               = []
-    default-node-pool = []    
+    default-node-pool = []
     harness-node-pool = [
       {
         key    = "harness-node"
@@ -394,24 +394,24 @@ locals {
       "10.254.154.12",
     ]
   }
-  node_pools   = [
-      {
-        preemptible   = var.default_node_preemptible
-        name          = "default-node-pool"
-        min_count     = var.default_node_min_count
-        max_count     = var.default_node_max_count
-        machine_type  = var.default_node_machine_type
-        auto_upgrade  = true
-        node_metadata = "GKE_METADATA_SERVER"
-      },
-      {
-        preemptible   = false
-        name          = "harness-node-pool"
-        min_count     = 1
-        max_count     = 1
-        machine_type  = "n2-standard-4"
-        auto_upgrade  = true
-        node_metadata = "GKE_METADATA_SERVER"
-    }   
+  node_pools = [
+    {
+      preemptible   = var.default_node_preemptible
+      name          = "default-node-pool"
+      min_count     = var.default_node_min_count
+      max_count     = var.default_node_max_count
+      machine_type  = var.default_node_machine_type
+      auto_upgrade  = true
+      node_metadata = "GKE_METADATA_SERVER"
+    },
+    {
+      preemptible   = false
+      name          = "harness-node-pool"
+      min_count     = 1
+      max_count     = 1
+      machine_type  = "n2-standard-4"
+      auto_upgrade  = true
+      node_metadata = "GKE_METADATA_SERVER"
+    }
   ]
 }

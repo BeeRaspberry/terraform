@@ -91,8 +91,8 @@ data "template_file" "startup_script" {
 
 data "google_compute_zones" "available" {
   provider = google-beta
-  project = var.project_id
-  region  = var.region
+  project  = var.project_id
+  region   = var.region
 }
 
 module "bastion" {
@@ -135,7 +135,7 @@ module "gke" {
   http_load_balancing              = var.http_load_balancing
   maintenance_start_time           = var.maintenance_start_time
   initial_node_count               = var.initial_node_count
-  node_pools                       = var.node_pools
+  node_pools                       = local.node_pools
   node_pools_labels                = var.node_pools_labels
   node_pools_metadata              = var.node_pools_metadata
   node_pools_taints                = var.node_pools_taints
@@ -157,7 +157,7 @@ module "gke" {
   default_max_pods_per_node        = var.default_max_pods_per_node
   database_encryption              = var.database_encryption
   resource_usage_export_dataset_id = var.resource_usage_export_dataset_id
-  zones                            = var.regional == true ? data.google_compute_zones.available.names : [ data.google_compute_zones.available.names[0] ]
+  zones                            = var.regional == true ? data.google_compute_zones.available.names : [data.google_compute_zones.available.names[0]]
 
   // Istio is recommended for pod-to-pod communications.
   istio = var.istio
