@@ -13,14 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-# Create DNS zone, if domain name is provided.
-resource "google_dns_managed_zone" "dns_zone" {
-  count    = var.domain_name != "" ? 1 : 0
-  name     = replace(var.domain_name, ".", "-")
-  dns_name = "${var.domain_name}."
-}
-
 module "enabled_google_apis" {
   source  = "terraform-google-modules/project-factory/google//modules/project_services"
   version = "~> 8.0"
@@ -38,7 +30,56 @@ module "enabled_google_apis" {
     "binaryauthorization.googleapis.com",
     "stackdriver.googleapis.com",
     "iap.googleapis.com",
+    "secretmanager.googleapis.com",
   ]
+}
+
+# Create DNS zone, if domain name is provided.
+resource "google_dns_managed_zone" "dns_zone" {
+  count    = var.domain_name != "" ? 1 : 0
+  name     = replace(var.domain_name, ".", "-")
+  dns_name = "${var.domain_name}."
+}
+
+# Create service account to manage DNS for letsencrypt
+resource "google_service_account" "dns_solver" {
+  count = letsencrypt == true ? 1 : 0
+  account_id = "dns-solver-${var.cluster_name}"
+  project    = var.project_id
+}
+
+resource "google_project_iam_binding" "project" {
+  count = letsencrypt == true ? 1 : 0
+  project = var.project_id
+  role    = "roles/dns.admin"
+
+  members = [
+    "serviceAccount:${google_service_account.dns_solver.email}",
+  ]
+}
+
+resource "google_service_account_key" "dns_solver_key" {
+  service_account_id = google_service_account.dns_solver.name
+}
+
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "dns-solver-credential"
+
+  labels = {
+    label = "dns-solver"
+  }
+  replication {
+    user_managed {
+      replicas {
+        location = var.region
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret = google_secret_manager_secret.secret-basic.id
+  secret_data = google_service_account_key.dns_solver_key.private_key
 }
 
 module "vpc" {
@@ -151,7 +192,7 @@ module "gke" {
   registry_project_id              = var.registry_project_id
   grant_registry_access            = true
   cluster_resource_labels          = var.cluster_resource_labels
-  enable_private_endpoint          = false
+  enable_private_endpoint          = var.enable_private_endpoint
   master_ipv4_cidr_block           = var.master_ipv4_cidr_block
   cloudrun                         = var.cloudrun
   default_max_pods_per_node        = var.default_max_pods_per_node
@@ -184,3 +225,28 @@ module "gke" {
 #  source            = "./modules/alerts"
 #  notification_list = var.notification_list
 #}
+
+resource "helm_release" "nginx-ingress" {
+  name       = "ingress-nginx"
+  chart      = "ingress-nginx"
+  repository = "https://github.com/kubernetes/ingress-nginx/tree/master/charts/ingress-nginx"
+}
+
+data "google_container_cluster" "cluster" {
+  name     = var.cluster_name
+  location = var.regional == true ? data.google_compute_zones.available.names : [data.google_compute_zones.available.names[0]]
+
+}
+
+# Same parameters as kubernetes provider
+#provider "kubernetes" {
+#  load_config_file       = false
+#  host                   = "https://${data.google_container_cluster.cluster.endpoint}"
+#  token                  = "${data.google_container_cluster.cluster.access_token}"
+#  cluster_ca_certificate = "${base64decode(data.google_container_cluster.cluster.master_auth.0.cluster_ca_certificate)}"
+#}
+
+#resource "kubectl_manifest" "install_cert_manager" {
+#    yaml_body = file("${path.module}/my_service.yaml")
+#}
+#kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.16.1/cert-manager.yaml

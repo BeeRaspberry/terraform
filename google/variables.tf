@@ -281,6 +281,11 @@ variable "istio" {
   default     = false
 }
 
+variable "letsencrypt" {
+  description = "Letsencrypt will be used for certificate management so create service accounts for it."
+  default     = true
+}
+
 variable "default_max_pods_per_node" {
   description = "The maximum number of pods to schedule per node"
   default     = 110
