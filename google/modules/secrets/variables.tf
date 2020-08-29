@@ -9,6 +9,6 @@ variable "cluster_name" {
   description = "The name of the cluster"
 }
 
-variable "count" {
+variable "db_count" {
   description = "Determines whether secrets are created"
 }

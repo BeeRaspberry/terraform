@@ -58,7 +58,7 @@ resource "google_project_iam_binding" "project" {
   ]
 }
 module "secrets" {
-  count       = var.db_machine_type == "" ? 0 : 1
+  db_count    = var.db_machine_type == "" ? 0 : 1
   source      = "./modules/secrets"
   project_id  = var.project_id
   environment = var.environment
