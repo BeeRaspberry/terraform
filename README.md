@@ -14,10 +14,7 @@ This repo contains code to stand up a Kubernetes cluster, and supporting infrast
 *   Kubernetes cluster
 *   Provider based Load Balancer
 *   Bastion Server with Proxy
-
-## Important Note
-
-Terraform 'state' file is stored locally. This is fine for testing, but should be changed to a central store such as 'S3', or 'Google Storage'.
+*   Cloud based DB instance (optional)
 
 ## Usage - General
 

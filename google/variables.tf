@@ -34,11 +34,11 @@ variable "environment" {
 
 variable "cluster_name" {
   description = "The name of the cluster"
-  default     = "safer-cluster"
+  default     = "my-cluster"
 }
 
 variable "domain_name" {
-  description = "Domain and zone name used in the cluster."
+  description = "Domain name used in the cluster."
   default     = ""
 }
 
@@ -151,15 +151,6 @@ variable "node_pools" {
       min_count     = 1
       max_count     = 2
       machine_type  = "n2-standard-2"
-      auto_upgrade  = true
-      node_metadata = "GKE_METADATA_SERVER"
-    },
-    {
-      preemptible   = false
-      name          = "harness-node-pool"
-      min_count     = 1
-      max_count     = 1
-      machine_type  = "n2-standard-4"
       auto_upgrade  = true
       node_metadata = "GKE_METADATA_SERVER"
     }
