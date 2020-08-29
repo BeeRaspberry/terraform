@@ -43,13 +43,13 @@ resource "google_dns_managed_zone" "dns_zone" {
 
 # Create service account to manage DNS for letsencrypt
 resource "google_service_account" "dns_solver" {
-  count = letsencrypt == true ? 1 : 0
+  count      = var.letsencrypt == true ? 1 : 0
   account_id = "dns-solver-${var.cluster_name}"
   project    = var.project_id
 }
 
 resource "google_project_iam_binding" "project" {
-  count = letsencrypt == true ? 1 : 0
+  count   = var.letsencrypt == true ? 1 : 0
   project = var.project_id
   role    = "roles/dns.admin"
 
@@ -58,10 +58,12 @@ resource "google_project_iam_binding" "project" {
   ]
 }
 module "secrets" {
-  db_count    = var.db_machine_type == "" ? 0 : 1
-  source      = "./modules/secrets"
-  project_id  = var.project_id
-  environment = var.environment
+  db_count     = var.db_machine_type == "" ? 0 : 1
+  source       = "./modules/secrets"
+  cluster_name = var.cluster_name
+  project_id   = var.project_id
+  environment  = var.environment
+  region       = var.region
 }
 
 module "vpc" {
@@ -219,15 +221,15 @@ module "gke" {
 #  notification_list = var.notification_list
 #}
 
-resource "cert_manager" "cert_manager" {
+resource "null_resource" "cert_manager" {
   provisioner "local-exec" {
     command = "kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.1/cert-manager.yaml"
   }
 }
 
-resource "helm_release" "haproxy-ingress" {
+resource "null_resource" "nginx-ingress" {
   provisioner "local-exec" {
-    command = "helm repo add haproxytech https://haproxytech.github.io/helm-charts; helm repo update;helm install haproxy-controller haproxytech/kubernetes-ingress --set controller.service.type=LoadBalancer -n haproxy-controller"
+    command = "helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx; helm repo update;helm install ingress-nginx ingress-nginx/ingress-nginx -n ingress-nginx"
   }
 }
 

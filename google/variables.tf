@@ -376,12 +376,12 @@ locals {
   }
   node_pools = [
     {
-      preemptible   = var.default_node_preemptible
+      preemptible   = var.node_preemptible
       name          = "default-node-pool"
-      min_count     = var.default_node_min_count
-      max_count     = var.default_node_max_count
-      machine_type  = var.default_node_machine_type
-      auto_upgrade  = var.auto_upgrade
+      min_count     = var.node_min_count
+      max_count     = var.node_max_count
+      machine_type  = var.node_machine_type
+      auto_upgrade  = var.node_auto_upgrade
       node_metadata = "GKE_METADATA_SERVER"
     }
   ]

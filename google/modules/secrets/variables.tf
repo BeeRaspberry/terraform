@@ -12,3 +12,7 @@ variable "cluster_name" {
 variable "db_count" {
   description = "Determines whether secrets are created"
 }
+
+variable "region" {
+  description = "The region to host the cluster in"
+}
