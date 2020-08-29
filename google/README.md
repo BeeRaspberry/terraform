@@ -1,11 +1,9 @@
 # Google Cloud Instructions
 
-This code leverages Google's Identity-Aware Proxy (IAP) needs to be configured prior to attempting to access the cluster.
+This code leverages modules built by Google.
 
-Configuring consists of establishing a 'consent screen'
+This code builds a private cluster with a bastion fronting the cluster. 
 
-## Configuring IAP
+Options include creating a Google Cloud SQL database, or creating one within the cluster. If a Cloud SQL instance is created the code creates random passwords for a 'root' and 'api' password which is posted into Google's Secret Management system. These can then be access by other systems; aka: such as a CD pipeline.
 
-*   [Consent Screen](https://console.cloud.google.com/security/iap)
-*   Select a User Type (Internal or External). Unless the account belongs to an organization you'll need to select 'Externa'. Google is kind enough to disable 'internal' when your account doesn't belong to an organization.
-*   The next screen is more personal, you'll need to complete based on your needs. Save when done.
+## Variable Definitions

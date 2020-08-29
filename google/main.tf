@@ -57,29 +57,11 @@ resource "google_project_iam_binding" "project" {
     "serviceAccount:${google_service_account.dns_solver.email}",
   ]
 }
-
-resource "google_service_account_key" "dns_solver_key" {
-  service_account_id = google_service_account.dns_solver.name
-}
-
-resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "dns-solver-credential"
-
-  labels = {
-    label = "dns-solver"
-  }
-  replication {
-    user_managed {
-      replicas {
-        location = var.region
-      }
-    }
-  }
-}
-
-resource "google_secret_manager_secret_version" "secret-version-basic" {
-  secret = google_secret_manager_secret.secret-basic.id
-  secret_data = google_service_account_key.dns_solver_key.private_key
+module "secrets" {
+  count       = var.db_machine_type == "" ? 0 : 1
+  source      = "./modules/secrets"
+  project_id  = var.project_id
+  environment = var.environment
 }
 
 module "vpc" {
@@ -134,6 +116,17 @@ data "google_compute_zones" "available" {
   provider = google-beta
   project  = var.project_id
   region   = var.region
+}
+
+resource "google_sql_database_instance" "master" {
+  count            = var.db_machine_type == "" ? 0 : 1
+  name             = "${var.cluster_name}-${var.environment}-db-instance"
+  database_version = var.db_version
+  region           = var.region
+
+  settings {
+    tier = var.db_machine_type
+  }
 }
 
 module "bastion" {
@@ -226,16 +219,21 @@ module "gke" {
 #  notification_list = var.notification_list
 #}
 
-resource "helm_release" "nginx-ingress" {
-  name       = "ingress-nginx"
-  chart      = "ingress-nginx"
-  repository = "https://github.com/kubernetes/ingress-nginx/tree/master/charts/ingress-nginx"
+resource "cert_manager" "cert_manager" {
+  provisioner "local-exec" {
+    command = "kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.1/cert-manager.yaml"
+  }
+}
+
+resource "helm_release" "haproxy-ingress" {
+  provisioner "local-exec" {
+    command = "helm repo add haproxytech https://haproxytech.github.io/helm-charts; helm repo update;helm install haproxy-controller haproxytech/kubernetes-ingress --set controller.service.type=LoadBalancer -n haproxy-controller"
+  }
 }
 
 data "google_container_cluster" "cluster" {
   name     = var.cluster_name
   location = var.regional == true ? data.google_compute_zones.available.names : [data.google_compute_zones.available.names[0]]
-
 }
 
 # Same parameters as kubernetes provider

@@ -299,6 +299,13 @@ variable "database_encryption" {
     key_name = ""
   }]
 }
+variable "db_machine_type" {
+  default = ""
+}
+
+variable "db_version" {
+  default = "POSTGRES_11"
+}
 
 variable "cloudrun" {
   description = "(Beta) Enable CloudRun addon"
