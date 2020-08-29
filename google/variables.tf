@@ -97,7 +97,7 @@ variable "horizontal_pod_autoscaling" {
 
 variable "http_load_balancing" {
   type        = bool
-  description = "Enable httpload balancer addon. The addon allows whoever can create Ingress objects to expose an application to a public IP. Network policies or Gatekeeper policies should be used to verify that only authorized applications are exposed."
+  description = "Enable httpload balancer addon. The addon allows whomever can create Ingress objects to expose an application to a public IP. Network policies or Gatekeeper policies should be used to verify that only authorized applications are exposed."
   default     = true
 }
 
@@ -125,36 +125,24 @@ variable "ip_source_ranges_ssh" {
   default     = []
 }
 
-variable "default_node_min_count" {
+variable "node_min_count" {
   default = 1
 }
 
-variable "default_node_max_count" {
+variable "node_max_count" {
   default = 1
 }
 
-variable "default_node_machine_type" {
+variable "node_machine_type" {
   default = "n2-standard-2"
 }
 
-variable "default_node_preemptible" {
+variable "node_preemptible" {
   default = true
 }
 
-variable "node_pools" {
-  description = "Node pool(s) for GKE"
-  type        = list(map(string))
-  default = [
-    {
-      preemptible   = true
-      name          = "default-node-pool"
-      min_count     = 1
-      max_count     = 2
-      machine_type  = "n2-standard-2"
-      auto_upgrade  = true
-      node_metadata = "GKE_METADATA_SERVER"
-    }
-  ]
+variable "node_auto_upgrade" {
+  default = true
 }
 
 variable "node_pools_labels" {
@@ -164,9 +152,6 @@ variable "node_pools_labels" {
   default = {
     all               = {}
     default-node-pool = {}
-    harness-node-pool = {
-      harness-node-pool = true
-    }
   }
 }
 
@@ -177,7 +162,6 @@ variable "node_pools_metadata" {
   default = {
     all               = {}
     default-node-pool = {}
-    harness-node-pool = {}
   }
 }
 
@@ -188,13 +172,6 @@ variable "node_pools_taints" {
   default = {
     all               = []
     default-node-pool = []
-    harness-node-pool = [
-      {
-        key    = "harness-node"
-        value  = true
-        effect = "NO_SCHEDULE"
-      },
-    ]
   }
 }
 
@@ -404,16 +381,7 @@ locals {
       min_count     = var.default_node_min_count
       max_count     = var.default_node_max_count
       machine_type  = var.default_node_machine_type
-      auto_upgrade  = true
-      node_metadata = "GKE_METADATA_SERVER"
-    },
-    {
-      preemptible   = false
-      name          = "harness-node-pool"
-      min_count     = 1
-      max_count     = 1
-      machine_type  = "n2-standard-4"
-      auto_upgrade  = true
+      auto_upgrade  = var.auto_upgrade
       node_metadata = "GKE_METADATA_SERVER"
     }
   ]
