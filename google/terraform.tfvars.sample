@@ -5,4 +5,3 @@ cluster_name = "<cluster name>"
 domain_name = "<domain name>"
 credential           = <<EOF
 <contents of credential.json>
-db_machine_type="db-f1-micro"

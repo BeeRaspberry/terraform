@@ -268,11 +268,11 @@ variable "database_encryption" {
   }]
 }
 variable "db_machine_type" {
-  default = ""
+  default = "db-f1-micro"
 }
 
 variable "db_version" {
-  default = "POSTGRES_11"
+  default = "POSTGRES_12"
 }
 
 variable "cloudrun" {

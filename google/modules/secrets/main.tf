@@ -23,7 +23,7 @@ resource "google_secret_manager_secret" "db-root" {
 
 resource "google_secret_manager_secret_version" "db-root-version" {
   count       = var.db_count
-  secret      = google_secret_manager_secret.db-root.id
+  secret      = google_secret_manager_secret.db-root[count.index].id
   secret_data = random_string.db-root-pwd.result
 }
 
@@ -52,6 +52,6 @@ resource "google_secret_manager_secret" "db-api" {
 
 resource "google_secret_manager_secret_version" "db-api-version" {
   count       = var.db_count
-  secret      = google_secret_manager_secret.db-api.id
+  secret      = google_secret_manager_secret.db-api[count.index].id
   secret_data = random_string.db-api-pwd.result
 }
