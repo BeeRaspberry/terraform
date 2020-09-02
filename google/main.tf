@@ -60,45 +60,14 @@ resource "google_project_iam_binding" "project" {
   ]
 }
 
-module "vpc" {
-  source  = "terraform-google-modules/network/google"
-  version = "~> 2.3"
-
-  project_id   = module.enabled_google_apis.project_id
-  network_name = local.network_name
-  routing_mode = "GLOBAL"
-
-  subnets = [
-    {
-      subnet_name           = local.subnet_name
-      subnet_ip             = var.subnet_ip
-      subnet_region         = var.region
-      subnet_private_access = true
-      description           = "This subnet is managed by Terraform"
-    }
-  ]
-  secondary_ranges = {
-    "${local.subnet_name}" = [
-      {
-        range_name    = var.ip_range_pods_name
-        ip_cidr_range = "192.168.0.0/18"
-      },
-      {
-        range_name    = var.ip_range_services_name
-        ip_cidr_range = "192.168.64.0/18"
-      },
-    ]
-  }
-}
-
-module "cloud-nat" {
-  source        = "terraform-google-modules/cloud-nat/google"
-  version       = "~> 1.2"
-  project_id    = module.enabled_google_apis.project_id
-  region        = var.region
-  router        = "${var.cluster_name}-router"
-  network       = module.vpc.network_self_link
-  create_router = true
+module "network" {
+  source                  = "./modules/network"
+  project_id              = var.project_id
+  region                  = var.region
+  cluster_name            = var.cluster_name
+  subnet_ip               = var.subnet_ip
+  ip_range_pods_name      = var.ip_range_pods_name
+  ip_range_services_name  = var.ip_range_services_name
 }
 
 data "template_file" "startup_script" {
@@ -124,14 +93,20 @@ module "secrets" {
 }
 
 module "database" {
-  source             = "./modules/database"
-  cluster_name       = var.cluster_name
-  environment        = var.environment
-  region             = var.region 
-  db_version         = var.db_version
-  db_machine_type    = var.db_machine_type 
-  api_password       = module.secrets.api_password
-  zone               = data.google_compute_zones.available.names[0]
+  source              = "./modules/database"
+  cluster_name        = var.cluster_name
+  environment         = var.environment
+  region              = var.region 
+  db_version          = var.db_version
+  db_machine_type     = var.db_machine_type 
+  api_password        = module.secrets.api_password
+  zone                = data.google_compute_zones.available.names[0]
+  network             = module.network.db_network
+#  authorized_network  = module.vpc.subnets_secondary_ranges[0].*.range_name[0]
+#  authorized_networks = [{
+#    name  = "k8s pods"
+#    value = module.vpc.subnets_secondary_ranges[0].*.range_name[0]
+#  }]
 }
 
 #module "bastion" {
@@ -236,10 +211,10 @@ module "database" {
 #  }
 #}
 
-data "google_container_cluster" "cluster" {
-  name     = var.cluster_name
-  location = data.google_compute_zones.available.names[0]
-}
+#data "google_container_cluster" "cluster" {
+#  name     = var.cluster_name
+#  location = data.google_compute_zones.available.names[0]
+#}
 
 # Same parameters as kubernetes provider
 #provider "kubernetes" {

@@ -13,7 +13,7 @@
 #  value       = "HTTPS_PROXY=localhost:8888 kubectl get pods --all-namespaces"
 #}
 
-output "google_config" {
-  description = "google config"
-  value       = data.google_container_cluster.cluster
-}
+#output "google_config" {
+#  description = "google config"
+#  value       = data.google_container_cluster.cluster
+#}

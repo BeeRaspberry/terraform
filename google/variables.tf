@@ -366,8 +366,6 @@ variable "notification_list" {
 
 locals {
   bastion_name = format("%s-bastion", var.cluster_name)
-  network_name = format("%s-network", var.cluster_name)
-  subnet_name  = format("%s-subnet", var.cluster_name)
   stub_domains = {
     "${var.domain_name}" = [
       "10.254.154.11",
