@@ -17,3 +17,13 @@
 #  description = "google config"
 #  value       = data.google_container_cluster.cluster
 #}
+
+output "database_info" {
+    description = "db info"
+    value = module.database.database
+}
+
+output "private_network" {
+    description = "private_network info"
+    value = module.network.db_network
+}

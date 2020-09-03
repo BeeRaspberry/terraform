@@ -40,7 +40,7 @@ module "cloud-nat" {
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "${var.cluster_name}=private-ip-alloc"
+  name          = "${var.cluster_name}-private-ip-alloc"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16

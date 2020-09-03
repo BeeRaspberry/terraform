@@ -100,6 +100,7 @@ module "database" {
   db_version          = var.db_version
   db_machine_type     = var.db_machine_type 
   api_password        = module.secrets.api_password
+  root_password       = module.secrets.root_password
   zone                = data.google_compute_zones.available.names[0]
   network             = module.network.db_network
 #  authorized_network  = module.vpc.subnets_secondary_ranges[0].*.range_name[0]
