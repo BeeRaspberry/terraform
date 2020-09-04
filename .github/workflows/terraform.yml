@@ -10,7 +10,7 @@ jobs:
     env:
       WORKING_DIR: ./google
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      TF_ACTIONS_VERSION: 0.12.28
+      TF_ACTIONS_VERSION: 0.12.29
 
     steps:
       - name: 'Checkout'
