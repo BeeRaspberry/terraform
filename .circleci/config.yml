@@ -20,18 +20,22 @@ jobs:
           command: |
             gpg --quiet --batch --yes -d --passphrase="$PASS_PHRASE" \
             -o ./google/github_credential.json ./google/github_credential.json.gpg
-#      - persist_to_workspace:
+      - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
           # taken to be the root directory of the workspace.
-#          root: .
+          root: .
           # Must be relative path from root
 #          paths:
-#            - .
+            - .
     
   plan_apply:
     docker:
       - image: hashicorp/terraform:0.12.29
     steps:
+      - attach_workspace:
+        # Must be absolute path or relative path from working_directory
+        at: /tmp/workspace
+        
       - run:
           name: create terraform.tfvars
           command: |
