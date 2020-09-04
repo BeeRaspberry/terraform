@@ -3,14 +3,15 @@ version: 2.1
 workflows:
   plan_apply:
     jobs:
+      - create_tfvars:
+        context: GCP 
       - plan_apply:
-          context: GCP 
 
 jobs:
-  plan_apply:
+  create_tfvars:
     working_directory: ./google
     docker:
-      - image: hashicorp/terraform:0.12.29
+      - image: circleci/buildpack-deps:latest
     steps:
       - checkout
       - run:
@@ -18,7 +19,21 @@ jobs:
           command: |
             gpg --quiet --batch --yes -d --passphrase="$PASSPHRASE" \
             -o github_credential.json github_credential.json.gpg
-            
+#      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
+          # taken to be the root directory of the workspace.
+#          root: .
+          # Must be relative path from root
+#          paths:
+#            - .
+    
+  plan_apply:
+    working_directory: ./google
+    docker:
+      - image: hashicorp/terraform:0.12.29
+    requires:
+      - create_tfvars
+    steps:
       - run:
           name: create terraform.tfvars
           command: |
