@@ -29,7 +29,6 @@ jobs:
 #            - .
     
   plan_apply:
-    working_directory: ./google
     docker:
       - image: hashicorp/terraform:0.12.29
     steps:
