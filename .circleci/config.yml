@@ -44,10 +44,12 @@ jobs:
             cluster_name         = "$CLUSTER_NAME"
             cred_file            = "github_credential.json"
             EOF
+            ls -l
 
       - run:
           name: terraform init & plan
           command: |
             pwd
+            ls -l
             terraform init -input=false
             terraform plan -out tfapply -var-file terraform.tfvars
