@@ -52,5 +52,5 @@ jobs:
       - run:
           name: terraform init & plan
           command: |
-            terraform init -input=false -backend-config='key=null.tfstate'
+            terraform init -input=false -backend=false
             terraform plan -out tfapply -var-file terraform.tfvars
