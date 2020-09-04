@@ -6,7 +6,6 @@ resource "google_sql_database_instance" "master" {
   count            = var.db_machine_type == "" ? 0 : 1
   name             = "${var.cluster_name}-${var.environment}-${random_id.db_name_suffix.hex}-db-instance"
   database_version = var.db_version
-  region = "us-central1"
   region           = var.region
 
   settings {

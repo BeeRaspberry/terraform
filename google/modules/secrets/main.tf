@@ -11,6 +11,7 @@ resource "google_secret_manager_secret" "db-root" {
   labels = {
     name        = "db-root-password"
     environment = var.environment
+    cluster     = var.cluster_name
   }
   replication {
     user_managed {
@@ -40,6 +41,7 @@ resource "google_secret_manager_secret" "db-api" {
   labels = {
     name        = "db-api-password"
     environment = var.environment
+    cluster     = var.cluster_name
   }
   replication {
     user_managed {

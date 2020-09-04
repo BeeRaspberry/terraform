@@ -103,103 +103,100 @@ module "database" {
   root_password       = module.secrets.root_password
   zone                = data.google_compute_zones.available.names[0]
   network             = module.network.db_network
-#  authorized_network  = module.vpc.subnets_secondary_ranges[0].*.range_name[0]
-#  authorized_networks = [{
-#    name  = "k8s pods"
-#    value = module.vpc.subnets_secondary_ranges[0].*.range_name[0]
-#  }]
 }
 
-#module "bastion" {
-#  source         = "terraform-google-modules/bastion-host/google"
-#  version        = "~> 2.0"
-#  network        = module.vpc.network_self_link
-#  subnet         = module.vpc.subnets_self_links[0]
-#  project        = module.enabled_google_apis.project_id
-#  host_project   = module.enabled_google_apis.project_id
-#  name           = local.bastion_name
-#  zone           = data.google_compute_zones.available.names[0]
-#  image_project  = "debian-cloud"
-#  image_family   = "debian-10"
-#  machine_type   = "g1-small"
-#  disk_size_gb   = 20
-#  startup_script = data.template_file.startup_script.rendered
-#  members        = var.bastion_members
-#  shielded_vm    = "false"
-#}
-#
-#module "gke" {
-#  source     = "terraform-google-modules/kubernetes-engine/google//modules/safer-cluster"
-#  project_id = module.enabled_google_apis.project_id
-#  name       = var.cluster_name
-#  region     = var.region
-#  regional   = var.regional
-#
-#  master_authorized_networks = [{
-#    cidr_block   = "${module.bastion.ip_address}/32"
-#    display_name = "Bastion Host"
-#  }]
-#
-#  network                          = module.vpc.network_name
-#  network_project_id               = var.network_project_id
-#  kubernetes_version               = var.kubernetes_version
-#  subnetwork                       = module.vpc.subnets_names[0]
-#  ip_range_pods                    = module.vpc.subnets_secondary_ranges[0].*.range_name[0]
-#  ip_range_services                = module.vpc.subnets_secondary_ranges[0].*.range_name[1]
-#  horizontal_pod_autoscaling       = var.horizontal_pod_autoscaling
-#  http_load_balancing              = var.http_load_balancing
-#  maintenance_start_time           = var.maintenance_start_time
-#  initial_node_count               = var.initial_node_count
-#  node_pools                       = local.node_pools
-#  node_pools_labels                = var.node_pools_labels
-#  node_pools_metadata              = var.node_pools_metadata
-#  node_pools_taints                = var.node_pools_taints
-#  node_pools_tags                  = var.node_pools_tags
-#  enable_vertical_pod_autoscaling  = var.enable_vertical_pod_autoscaling
-#  authenticator_security_group     = var.authenticator_security_group
-#  enable_shielded_nodes            = var.enable_shielded_nodes
-#  skip_provisioners                = var.skip_provisioners
-#  node_pools_oauth_scopes          = var.node_pools_oauth_scopes
-#  upstream_nameservers             = var.upstream_nameservers
-#  logging_service                  = var.logging_service
-#  monitoring_service               = var.monitoring_service
-#  registry_project_id              = var.registry_project_id
-#  grant_registry_access            = true
-#  cluster_resource_labels          = var.cluster_resource_labels
-#  enable_private_endpoint          = var.enable_private_endpoint
-#  master_ipv4_cidr_block           = var.master_ipv4_cidr_block
-#  cloudrun                         = var.cloudrun
-#  default_max_pods_per_node        = var.default_max_pods_per_node
-#  database_encryption              = var.database_encryption
-#  resource_usage_export_dataset_id = var.resource_usage_export_dataset_id
-#  zones                            = var.regional == true ? data.google_compute_zones.available.names : [data.google_compute_zones.available.names[0]]
-#
-#  // Istio is recommended for pod-to-pod communications.
-#  istio = var.istio
-#
-#  // Define PodSecurityPolicies for different applications.
-#  // Example: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example
-#  //  pod_security_policy_config    = var.pod_security_policy_config
-#
-#
-#  // Sandbox is needed if the cluster is going to run any untrusted workload (e.g., user submitted code).
-#  // Sandbox can also provide increased protection in other cases, at some performance cost.
-#  sandbox_enabled = var.sandbox_enabled
-#
-#  // Intranode Visibility enables you to capture flow logs for traffic between pods and create FW rules that apply to traffic between pods.
-#  enable_intranode_visibility = var.enable_intranode_visibility
-#
-#  // Doesn't work... unable to execute kubectl commands once bastion proxy is required.
-#  //  stub_domains               = var.domain_name != "" ? local.stub_domains : {}
-#  stub_domains = {}
-#
-#}
-#
+module "bastion" {
+  source         = "terraform-google-modules/bastion-host/google"
+  version        = "~> 2.0"
+  network        = module.network.bastion_network
+  subnet         = module.network.bastion_subnet
+  project        = module.enabled_google_apis.project_id
+  host_project   = module.enabled_google_apis.project_id
+  name           = local.bastion_name
+  zone           = data.google_compute_zones.available.names[0]
+  image_project  = "debian-cloud"
+  image_family   = "debian-10"
+  machine_type   = "g1-small"
+  disk_size_gb   = 20
+  startup_script = data.template_file.startup_script.rendered
+  members        = var.bastion_members
+  shielded_vm    = "false"
+}
+
+module "gke" {
+  source     = "terraform-google-modules/kubernetes-engine/google//modules/safer-cluster"
+  project_id = module.enabled_google_apis.project_id
+  name       = var.cluster_name
+  region     = var.region
+  regional   = var.regional
+
+  master_authorized_networks = [{
+    cidr_block   = "${module.bastion.ip_address}/32"
+    display_name = "Bastion Host"
+  }]
+
+  network                          = module.network.network_name
+  network_project_id               = var.network_project_id
+  kubernetes_version               = var.kubernetes_version
+  subnetwork                       = module.network.subnetwork
+  ip_range_pods                    = module.network.ip_range_pods
+  ip_range_services                = module.network.ip_range_services
+  horizontal_pod_autoscaling       = var.horizontal_pod_autoscaling
+  http_load_balancing              = var.http_load_balancing
+  maintenance_start_time           = var.maintenance_start_time
+  initial_node_count               = var.initial_node_count
+  node_pools                       = local.node_pools
+  node_pools_labels                = var.node_pools_labels
+  node_pools_metadata              = var.node_pools_metadata
+  node_pools_taints                = var.node_pools_taints
+  node_pools_tags                  = var.node_pools_tags
+  enable_vertical_pod_autoscaling  = var.enable_vertical_pod_autoscaling
+  authenticator_security_group     = var.authenticator_security_group
+  enable_shielded_nodes            = var.enable_shielded_nodes
+  skip_provisioners                = var.skip_provisioners
+  node_pools_oauth_scopes          = var.node_pools_oauth_scopes
+  upstream_nameservers             = var.upstream_nameservers
+  logging_service                  = var.logging_service
+  monitoring_service               = var.monitoring_service
+  registry_project_id              = var.registry_project_id
+  grant_registry_access            = true
+  cluster_resource_labels          = var.cluster_resource_labels
+  enable_private_endpoint          = var.enable_private_endpoint
+  master_ipv4_cidr_block           = var.master_ipv4_cidr_block
+  cloudrun                         = var.cloudrun
+  default_max_pods_per_node        = var.default_max_pods_per_node
+  database_encryption              = var.database_encryption
+  resource_usage_export_dataset_id = var.resource_usage_export_dataset_id
+  zones                            = var.regional == true ? data.google_compute_zones.available.names : [data.google_compute_zones.available.names[0]]
+
+  // Istio is recommended for pod-to-pod communications.
+  istio = var.istio
+
+  // Define PodSecurityPolicies for different applications.
+  // Example: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example
+  //  pod_security_policy_config    = var.pod_security_policy_config
+
+
+  // Sandbox is needed if the cluster is going to run any untrusted workload (e.g., user submitted code).
+  // Sandbox can also provide increased protection in other cases, at some performance cost.
+  sandbox_enabled = var.sandbox_enabled
+
+  // Intranode Visibility enables you to capture flow logs for traffic between pods and create FW rules that apply to traffic between pods.
+  enable_intranode_visibility = var.enable_intranode_visibility
+
+  // Doesn't work... unable to execute kubectl commands once bastion proxy is required.
+  //  stub_domains               = var.domain_name != "" ? local.stub_domains : {}
+  stub_domains = {}
+
+}
+
 ##module "alerts" {
 ##  source            = "./modules/alerts"
 ##  notification_list = var.notification_list
 ##}
 #
+
+# The following won't work as the cluster is private, requiring proxy through the Bastion
 #resource "null_resource" "cert_manager" {
 #  provisioner "local-exec" {
 #    command = "kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.1/cert-manager.yaml"
@@ -211,21 +208,20 @@ module "database" {
 #    command = "helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx; helm repo update;helm install ingress-nginx ingress-nginx/ingress-nginx -n ingress-nginx"
 #  }
 #}
-
+#
 #data "google_container_cluster" "cluster" {
 #  name     = var.cluster_name
 #  location = data.google_compute_zones.available.names[0]
 #}
-
-# Same parameters as kubernetes provider
+#
+## Same parameters as kubernetes provider
 #provider "kubernetes" {
 #  load_config_file       = false
 #  host                   = "https://${data.google_container_cluster.cluster.endpoint}"
 #  token                  = "${data.google_container_cluster.cluster.access_token}"
 #  cluster_ca_certificate = "${base64decode(data.google_container_cluster.cluster.master_auth.0.cluster_ca_certificate)}"
 #}
-
 #resource "kubectl_manifest" "install_cert_manager" {
-#    yaml_body = file("${path.module}/my_service.yaml")
+#  yaml_body = file("${path.module}/my_service.yaml")
 #}
 #kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.16.1/cert-manager.yaml
