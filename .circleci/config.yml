@@ -49,7 +49,7 @@ jobs:
             cluster_name         = "$CLUSTER_NAME"
             cred_file            = "github_credential.json"
             EOF
-            ls -l
+            cat terraform.tfvars
 
       - run:
           name: terraform init & plan
