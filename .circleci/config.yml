@@ -18,6 +18,7 @@ jobs:
       - run:
           name: Decrypt gcp credentials
           command: |
+            pwd
             gpg --quiet --batch --yes -d --passphrase="$PASS_PHRASE" \
             -o ./google/github_credential.json ./google/github_credential.json.gpg
       - persist_to_workspace:
@@ -35,7 +36,7 @@ jobs:
       - attach_workspace:
         # Must be absolute path or relative path from working_directory
         at: /tmp/workspace
-        
+
       - run:
           name: create terraform.tfvars
           command: |
