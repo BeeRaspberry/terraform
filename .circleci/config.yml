@@ -35,7 +35,7 @@ jobs:
     steps:
       - attach_workspace:
         # Must be absolute path or relative path from working_directory
-        at: /tmp/workspace
+          at: /tmp/workspace
 
       - run:
           name: create terraform.tfvars
