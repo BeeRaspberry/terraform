@@ -21,7 +21,6 @@ jobs:
           command: |
             gpg --quiet --batch --yes -d --passphrase="$PASS_PHRASE" \
             -o ./google/github_credential.json ./google/github_credential.json.gpg
-            ls -l google
       - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
           # taken to be the root directory of the workspace.
@@ -42,7 +41,6 @@ jobs:
       - run:
           name: create terraform.tfvars
           command: |
-            pwd
             cat \<<EOF >terraform.tfvars
             project_id           = "$PROJECT_ID"
             bastion_members      = $BASTION_MEMBERS
@@ -50,12 +48,9 @@ jobs:
             cluster_name         = "$CLUSTER_NAME"
             cred_file            = "github_credential.json"
             EOF
-            cat terraform.tfvars
 
       - run:
           name: terraform init & plan
           command: |
-            pwd
-            ls -l
             terraform init -input=false
             terraform plan -out tfapply -var-file terraform.tfvars
