@@ -3,7 +3,7 @@ version: 2.1
 workflows:
   test-env-vars:
     jobs:
-      - build:
+      - plan-apply:
           context: GCP 
 
 jobs:
@@ -18,7 +18,6 @@ jobs:
           command: |
             gpg --quiet --batch --yes -d --passphrase="$PASSPHRASE" \
             -o github_credential.json github_credential.json.gpg
-
             
       - run:
           name: create terraform.tfvars
