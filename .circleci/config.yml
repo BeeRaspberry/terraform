@@ -6,6 +6,7 @@ workflows:
       - create_tfvars:
           context: GCP 
       - plan_apply:
+          context: GCP
           requires:
             - create_tfvars
 
