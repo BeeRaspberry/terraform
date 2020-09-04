@@ -4,8 +4,10 @@ workflows:
   plan_apply:
     jobs:
       - create_tfvars:
-        context: GCP 
-      - plan_apply
+          context: GCP 
+      - plan_apply:
+          requires:
+            - create_tfvars
 
 jobs:
   create_tfvars:
@@ -31,8 +33,6 @@ jobs:
     working_directory: ./google
     docker:
       - image: hashicorp/terraform:0.12.29
-    requires:
-      - create_tfvars
     steps:
       - run:
           name: create terraform.tfvars
