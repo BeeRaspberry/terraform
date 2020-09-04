@@ -11,7 +11,6 @@ workflows:
 
 jobs:
   create_tfvars:
-    working_directory: ./google
     docker:
       - image: circleci/buildpack-deps:latest
     steps:
@@ -20,7 +19,7 @@ jobs:
           name: Decrypt gcp credentials
           command: |
             gpg --quiet --batch --yes -d --passphrase="$PASSPHRASE" \
-            -o github_credential.json github_credential.json.gpg
+            -o ./google/github_credential.json ./google/github_credential.json.gpg
 #      - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
           # taken to be the root directory of the workspace.
