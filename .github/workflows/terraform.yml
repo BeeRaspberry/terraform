@@ -20,7 +20,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           gpg --quiet --batch --yes --decrypt --passphrase="${{ secrets.GCP_PASSPHRASE }}" \
-          --output github_credentials.json github_credential.json.gpg
+          --output github_credential.json github_credential.json.gpg
 
       - name: create terraform.tfvars
         working-directory: ${{ env.WORKING_DIR }}
@@ -31,9 +31,9 @@ jobs:
           ip_source_ranges_ssh = ${{ secrets.IP_SOURCES }}
           cluster_name         = "${{ secrets.CLUSTER_NAME }}"
           domain_name          = "${{ secrets.DOMAIN_NAME }}"
-          cred_file            = "github_credentials.json"
+          cred_file            = "github_credential.json"
           EOF
-          ls -l
+
  #     - name: 'Terraform Format'
  #       uses: hashicorp/terraform-github-actions@master
  #       with:
