@@ -36,6 +36,7 @@ jobs:
       - run:
           name: create terraform.tfvars
           command: |
+            pwd
             cat \<<EOF >terraform.tfvars
             project_id           = "$PROJECT_ID"
             bastion_members      = $BASTION_MEMBERS
@@ -47,5 +48,6 @@ jobs:
       - run:
           name: terraform init & plan
           command: |
+            pwd
             terraform init -input=false
             terraform plan -out tfapply -var-file terraform.tfvars
