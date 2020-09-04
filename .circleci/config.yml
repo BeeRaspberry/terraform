@@ -1,13 +1,13 @@
 version: 2.1
 
 workflows:
-  test-env-vars:
+  plan_apply:
     jobs:
-      - plan-apply:
+      - plan_apply:
           context: GCP 
 
 jobs:
-  plan-apply:
+  plan_apply:
     working_directory: ./google
     docker:
       - image: hashicorp/terraform:0.12.29
@@ -22,7 +22,7 @@ jobs:
       - run:
           name: create terraform.tfvars
           command: |
-            cat <<EOF >terraform.tfvars
+            cat \<\<EOF >terraform.tfvars
             project_id           = "$PROJECT_ID"
             bastion_members      = $BASTION_MEMBERS
             ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
