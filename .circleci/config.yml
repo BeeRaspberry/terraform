@@ -18,7 +18,7 @@ jobs:
       - run:
           name: Decrypt gcp credentials
           command: |
-            gpg --quiet --batch --yes -d --passphrase="$PASSPHRASE" \
+            gpg --quiet --batch --yes -d --passphrase="$PASS_PHRASE" \
             -o ./google/github_credential.json ./google/github_credential.json.gpg
 #      - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
