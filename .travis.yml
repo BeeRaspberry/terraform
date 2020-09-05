@@ -20,8 +20,6 @@ jobs:
           bastion_members      = $BASTION_MEMBERS
           ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
           cluster_name         = "$CLUSTER_NAME"
-          region               = "$REGION"
-          regional             = false
           cred_file            = "github_credential.json"
           EOF
         - terraform init -input=false
