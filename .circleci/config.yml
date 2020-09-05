@@ -1,21 +1,24 @@
 version: 2.1
 
 workflows:
-  plan_apply:
+  terraform_check:
     jobs:
-      - create_tfvars:
+      - setup:
           context: GCP 
       - plan_apply:
           context: GCP
           requires:
-            - create_tfvars
+            - setup
 
 jobs:
-  create_tfvars:
+  setup:
     docker:
       - image: circleci/buildpack-deps:latest
     steps:
       - checkout
+      - run:
+          name: Replace backend.tf for local storage
+          command: cp ci_state.tf ./google/state.tf
       - run:
           name: Decrypt gcp credentials
           command: |
