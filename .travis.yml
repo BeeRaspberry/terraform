@@ -14,10 +14,8 @@ jobs:
         - sudo apt-cache policy terraform
         - cp ci_backend.tf ./google/backend.tf
         - cd google
-        - gpg --version
-        - gpg --help
-        - echo $PASS_PHRASE
-        - gpg --quiet --batch --yes -d --passphrase="$PASS_PHRASE" \
+        - ls -l
+        - gpg --batch --yes -d --passphrase="$PASS_PHRASE" \
             -o github_credential.json github_credential.json.gpg
         - |
           cat <<EOF >terraform.tfvars
@@ -29,3 +27,8 @@ jobs:
           EOF
         - terraform init -input=false
         - terraform plan -out tfapply -var-file terraform.tfvars
+
+notifications:
+  slack:
+    rooms:
+      secure: FUZ3+D8+LTrXhy7PLktjccqe4ebIzGNcUp+wiMjC6bZrilOjmj+PrK4cVdSMvoYyDJmdU0qWmNG/IgmaaAPz15felFP24aTcI/+Yal3D9IAIzhHOaxWwyVdZPUZpuVUkC88RHem6BAwYlCdrO22vq9rXCZcATsPBlciScvuaM+IXLwt29MH9u6mRImJ53cDIK65A7JIwUinFkG/QXLknQ0+8KJPet8of0jHGF6czF69JPcjpwo5F3FHrG+rkwnOIHONwElEIiJTpn88y5mPbwWxbNKj7SygMJfId4YRhb0NhL/sC84vLanzqAr1oQvekdV5AKuzkGpPEWPz4fAVpilqUauv3O9OS+BenwPoSAc5QYuGw7kME2TUw/m2DNqvszXgR/ZH64CMBCacPNJIMou1bK6PYcDftX7jBVgONubfL7Dc3H2gh3iyh9dAQxb6JmyED1hyC6LG3jDfEk/XF7LIGHQ58VxKddb6XP6VwafiAiIyE80tRBsq9Vu/eaK096f5aaCsobMZqos1yUHPcxG8h4b8ScRH0CMrOx+/dKKsMED2CZzF5LQcRnloPmmIOSjLlImZ3GLQW+J4uZQykmEbzYThs6WU/z+72zWKZxBpOpOW5LrEjZkN6fpQwUwlMb2yu+kL44YuCXb+RMBY91f3lfaG8qqDHDSZNTqlB748=#beeraspberry
