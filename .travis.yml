@@ -12,8 +12,9 @@ jobs:
       name: "Run Terraform"
       script: 
         - cp ci_backend.tf ./google/backend.tf
+        - cd google
         - gpg --quiet --batch --yes -d --passphrase="$PASS_PHRASE" \
-            -o ./google/github_credential.json ./google/github_credential.json.gpg
+            -o github_credential.json github_credential.json.gpg
         - |
           cat <<EOF >terraform.tfvars
           project_id           = "$PROJECT_ID"
