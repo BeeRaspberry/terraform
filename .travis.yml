@@ -11,12 +11,12 @@ jobs:
     - stage: run_terraform                
       name: "Run Terraform"
       script: 
-        - sudo apt-cache policy terraform
         - cp ci_backend.tf ./google/backend.tf
         - cd google
-        - ls -l
-        - gpg --batch --yes -d --passphrase="$PASS_PHRASE" \
-            -o github_credential.json github_credential.json.gpg
+        - >
+          gpg --batch --yes --passphrase="$PASS_PHRASE"
+          --output github_credential.json 
+          --decrypt github_credential.json.gpg
         - |
           cat <<EOF >terraform.tfvars
           project_id           = "$PROJECT_ID"
