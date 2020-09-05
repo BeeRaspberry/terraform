@@ -1,5 +1,41 @@
-before_install:
+dist: bionic
+
+stages:
+  - replace_backend
+  - decrypt_credential
+  - create_tfvars
+  - run_terraform
+
+install:
   - curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
   - sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
   - sudo apt-get update && sudo apt-get install terraform
   - terraform -help
+
+jobs:
+  include:
+    - stage: replace_backend                
+      name: "Replace backend with local"
+      script: cp ci_backend.tf ./google/backend.tf
+    - stage: decrypt_credential
+      name: "Decrypt credential.json"
+      script: |
+       gpg --quiet --batch --yes -d --passphrase="$PASS_PHRASE" \
+            -o ./google/github_credential.json ./google/github_credential.json.gpg
+    - stage: create_tfvars
+      name: "Build terraform.tfvars"
+      script: |
+        cat \<<EOF >terraform.tfvars
+        project_id           = "$PROJECT_ID"
+        bastion_members      = $BASTION_MEMBERS
+        ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
+        cluster_name         = "$CLUSTER_NAME"
+        region               = "$REGION"
+        regional             = false
+        cred_file            = "github_credential.json"
+        EOF
+    - stage: run_terraform
+      name: "Run Terraform commands"
+      script:
+        - terraform init -input=false
+        - terraform plan -out tfapply -var-file terraform.tfvars
