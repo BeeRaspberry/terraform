@@ -14,7 +14,7 @@ jobs:
         - sudo apt-cache policy terraform
         - cp ci_backend.tf ./google/backend.tf
         - cd google
-        - gpg --quiet --batch --yes -d --passphrase="$PASS_PHRASE" \
+        - gpg --quiet --batch --yes --decrypt --passphrase="$PASS_PHRASE" \
             -o github_credential.json github_credential.json.gpg
         - |
           cat <<EOF >terraform.tfvars
