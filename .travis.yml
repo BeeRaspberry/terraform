@@ -12,6 +12,7 @@ jobs:
     - stage: run_terraform                
       name: "Run Terraform"
       script: 
+        - sudo apt-cache policy terraform
         - cp ci_backend.tf ./google/backend.tf
         - cd google
         - gpg --quiet --batch --yes -d --passphrase="$PASS_PHRASE" \
