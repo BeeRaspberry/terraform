@@ -19,6 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: hashicorp/setup-terraform@v1
+    - uses: rtCamp/action-slack-notify@master
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
  
@@ -84,3 +85,7 @@ jobs:
             repo: context.repo.repo,
             body: output
           })
+
+    - name: Slack Notification
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

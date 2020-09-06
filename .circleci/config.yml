@@ -34,6 +34,9 @@ jobs:
           # Must be relative path from root
           paths:
             - .
+      - slack/notify:
+          color: '#42e2f4'
+          message: This is a custom message notification
     
   plan_apply:
     docker:
