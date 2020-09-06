@@ -19,7 +19,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: hashicorp/setup-terraform@v1
-    - uses: rtCamp/action-slack-notify@master
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
  
@@ -86,6 +85,11 @@ jobs:
             body: output
           })
 
+# https://github.com/marketplace/actions/slack-notify
     - name: Slack Notification
+      uses: rtCamp/action-slack-notify@master
       env:
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_TITLE: Github Action - ${GITHUB_REPOSITORY}
+        SLACK_MESSAGE: Workflow Ran
+
