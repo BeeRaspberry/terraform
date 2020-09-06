@@ -1,0 +1,32 @@
+image: ubuntu:18.04
+
+stages:
+    - build
+    - test
+
+install_prereqs:
+  stage: build
+  script:
+    - curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+    - sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+    - sudo apt-get update && sudo apt-get install -y terraform=0.12.29
+    - cp ci_backend.tf ./google/backend.tf
+
+test_terraform:
+  stage: test
+  script:
+    - cd google
+    - >
+      gpg --batch --yes --passphrase="$PASS_PHRASE"
+      --output github_credential.json 
+      --decrypt github_credential.json.gpg
+    - |
+      cat <<EOF >terraform.tfvars
+      project_id           = "$PROJECT_ID"
+      bastion_members      = $BASTION_MEMBERS
+      ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
+      cluster_name         = "$CLUSTER_NAME"
+      cred_file            = "github_credential.json"
+      EOF
+    - terraform init -input=false
+    - terraform plan -out tfapply -var-file terraform.tfvars
