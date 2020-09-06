@@ -1,21 +1,18 @@
 image: ubuntu:18.04
 
 stages:
-    - build
     - test
 
-install_prereqs:
-  stage: build
-  script:
-    - apt-get update && apt-get install -y curl gnupg2 lsb-release software-properties-common git
-    - curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-    - apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-    - apt-get update && apt-get install -y terraform=0.12.29
-    - cp ci_backend.tf ./google/backend.tf
+before_script:
+  - apt-get update && apt-get install -y curl gnupg2 lsb-release software-properties-common git
+  - curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+  - apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+  - apt-get update && apt-get install -y terraform=0.12.29
 
 test_terraform:
   stage: test
   script:
+    - cp ci_backend.tf ./google/backend.tf
     - cd google
     - >
       gpg --batch --yes --passphrase="$PASS_PHRASE"
