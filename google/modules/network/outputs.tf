@@ -33,3 +33,7 @@ output "bastion_subnet" {
   value       = module.vpc.subnets_self_links[0]
 }
 
+output "db_depends_on" {
+  description = "DB Depends on network"
+  value       = google_service_networking_connection.peering_connection.service
+}

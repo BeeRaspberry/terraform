@@ -103,6 +103,7 @@ module "database" {
   root_password       = module.secrets.root_password
   zone                = data.google_compute_zones.available.names[0]
   network             = module.network.db_network
+  db_depends_on       = module.network.db_depends_on
 }
 
 module "bastion" {

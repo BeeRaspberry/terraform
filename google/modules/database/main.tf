@@ -18,6 +18,8 @@ resource "google_sql_database_instance" "master" {
       private_network     = var.network
     }
   }
+
+  depends_on = [ var.db_depends_on ]
 }
 
 resource "google_sql_user" "root_user" {

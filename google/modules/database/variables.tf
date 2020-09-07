@@ -15,3 +15,5 @@ variable "environment" {}
 variable "zone" {}
 
 variable "network" {}
+
+variable "db_depends_on" {}
