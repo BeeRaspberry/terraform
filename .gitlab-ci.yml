@@ -1,30 +1,54 @@
-image: ubuntu:18.04
 
-stages:
-    - test
+image:
+  name: registry.gitlab.com/gitlab-org/gitlab-build-images:terraform:0.12.29
+  entrypoint:
+    - '/usr/bin/env'
+    - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+
+# Default output file for Terraform plan
+variables:
+  PLAN: plan.tfplan
+  JSON_PLAN_FILE: tfplan.json
+
+cache:
+  paths:
+    - .terraform
 
 before_script:
-  - apt-get update && apt-get install -y curl gnupg2 lsb-release software-properties-common git
-  - curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-  - apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-  - apt-get update && apt-get install -y terraform=0.12.29
+  - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
+  - terraform --version
+  - cp ci_backend.tf ./google/backend.tf
+  - cd google
+  - >
+    gpg --batch --yes --passphrase="$PASS_PHRASE"
+    --output github_credential.json 
+    --decrypt github_credential.json.gpg
+  - |
+    cat <<EOF >terraform.tfvars
+    project_id           = "$PROJECT_ID"
+    bastion_members      = $BASTION_MEMBERS
+    ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
+    cluster_name         = "$CLUSTER_NAME"
+    cred_file            = "github_credential.json"
+    EOF
+  - terraform init
 
-test_terraform:
-  stage: test
+stages:
+  - validate
+  - build
+
+validate:
+  stage: validate
   script:
-    - cp ci_backend.tf ./google/backend.tf
-    - cd google
-    - >
-      gpg --batch --yes --passphrase="$PASS_PHRASE"
-      --output github_credential.json 
-      --decrypt github_credential.json.gpg
-    - |
-      cat <<EOF >terraform.tfvars
-      project_id           = "$PROJECT_ID"
-      bastion_members      = $BASTION_MEMBERS
-      ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
-      cluster_name         = "$CLUSTER_NAME"
-      cred_file            = "github_credential.json"
-      EOF
-    - terraform init -input=false
-    - terraform plan -out tfapply -var-file terraform.tfvars
+    - terraform validate
+
+plan:
+  stage: build
+  script:
+    - terraform plan -out=$PLAN
+    - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
+  artifacts:
+    paths:
+      - $PLAN
+    reports:
+      terraform: $JSON_PLAN_FILE
