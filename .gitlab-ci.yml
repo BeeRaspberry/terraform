@@ -1,6 +1,6 @@
 
 image:
-  name: registry.gitlab.com/gitlab-org/gitlab-build-images:terraform:0.12.29
+  name: hashicorp/terraform:0.12.29
   entrypoint:
     - '/usr/bin/env'
     - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
