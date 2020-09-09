@@ -8,8 +8,9 @@ decrypt:
   stage: build
   image:
     name: ubuntu:18.04
+  before_script:
+    - apt update && apt install gnupg
   script:
-    - sudo apt update && sudo apt install gnupg
     - mkdir decrypt
     - gpg --batch --yes --passphrase="$PASS_PHRASE"
       --output decrypt/github_credential.json 
