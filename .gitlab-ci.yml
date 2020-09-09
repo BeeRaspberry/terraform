@@ -17,17 +17,13 @@ decrypt:
     paths:
       - decrypt
 
-default:
+validate:
+  stage: validate
   image:
     name: hashicorp/terraform:0.12.29
     entrypoint:
       - '/usr/bin/env'
       - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-
-  cache:
-    paths:
-      - .terraform
-
   before_script:
     - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
     - terraform --version
@@ -41,46 +37,44 @@ default:
       cred_file            = "github_credential.json"
       EOF
     - terraform init
-
-validate:
-  stage: validate
   cache:
     paths:
       - decrypt 
+      - .terraform
   script:
     - cp decrypt/github_credential.json ./google/github_credential.json
     - terraform validate
 
-plan:
-  stage: plan
-  cache:
-    paths:
-      - decrypt 
-  script:
-    - cp decrypt/github_credential.json ./google/github_credential.json
-    - terraform plan -out=$PLAN
-    - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
-  # Default output file for Terraform plan
-  variables:
-    PLAN: plan.tfplan
-    JSON_PLAN_FILE: tfplan.json
-  artifacts:
-    paths:
-      - $PLAN
-    reports:
-      terraform: $JSON_PLAN_FILE
-
-production:
-  stage: deploy
-  cache:
-    paths:
-      - decrypt 
-  script:
-    - cp decrypt/github_credential.json ./google/github_credential.json
-    - terraform apply $PLAN
-  variables:
-    PLAN: plan.tfplan
-    JSON_PLAN_FILE: tfplan.json  
-  when: manual
-  only:
-    - master
+#plan:
+#  stage: plan
+#  cache:
+#    paths:
+#      - decrypt 
+#  script:
+#    - cp decrypt/github_credential.json ./google/github_credential.json
+#    - terraform plan -out=$PLAN
+#    - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
+#  # Default output file for Terraform plan
+#  variables:
+#    PLAN: plan.tfplan
+#    JSON_PLAN_FILE: tfplan.json
+#  artifacts:
+#    paths:
+#      - $PLAN
+#    reports:
+#      terraform: $JSON_PLAN_FILE
+#
+#production:
+#  stage: deploy
+#  cache:
+#    paths:
+#      - decrypt 
+#  script:
+#    - cp decrypt/github_credential.json ./google/github_credential.json
+#    - terraform apply $PLAN
+#  variables:
+#    PLAN: plan.tfplan
+#    JSON_PLAN_FILE: tfplan.json  
+#  when: manual
+#  only:
+#    - master
