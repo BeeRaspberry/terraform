@@ -19,13 +19,15 @@ decrypt:
     paths:
       - decrypt
 
-validate:
-  stage: validate
+default:
   image:
     name: hashicorp/terraform:0.12.29
     entrypoint:
       - '/usr/bin/env'
       - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  cache:
+    paths:
+      - .terraform
   before_script:
     - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
     - terraform --version
@@ -39,14 +41,16 @@ validate:
       cred_file            = "github_credential.json"
       EOF
     - terraform init
+
+validate:
+  stage: validate
   cache:
     paths:
       - decrypt 
-      - .terraform
   script:
     - cp decrypt/github_credential.json ./google/github_credential.json
     - terraform validate
-
+    
 #plan:
 #  stage: plan
 #  cache:
