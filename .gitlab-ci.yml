@@ -2,6 +2,7 @@ stages:
   - build
   - validate
   - plan
+  - deploy
 
 decrypt:
   stage: build
