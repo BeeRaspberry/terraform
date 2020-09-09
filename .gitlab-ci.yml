@@ -28,12 +28,10 @@ default:
   cache:
     paths:
       - .terraform
-      - decrypt-file
 
   before_script:
     - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
     - terraform --version
-    - cp decrypt/github_credential.json ./google/github_credential.json
     - cd google
     - |
       cat <<EOF >terraform.tfvars
@@ -47,12 +45,20 @@ default:
 
 validate:
   stage: validate
+  cache:
+    paths:
+      - decrypt 
   script:
+    - cp decrypt/github_credential.json ./google/github_credential.json
     - terraform validate
 
 plan:
   stage: plan
+  cache:
+    paths:
+      - decrypt 
   script:
+    - cp decrypt/github_credential.json ./google/github_credential.json
     - terraform plan -out=$PLAN
     - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
   # Default output file for Terraform plan
@@ -67,10 +73,15 @@ plan:
 
 production:
   stage: deploy
+  cache:
+    paths:
+      - decrypt 
   script:
+    - cp decrypt/github_credential.json ./google/github_credential.json
     - terraform apply $PLAN
   variables:
     PLAN: plan.tfplan
     JSON_PLAN_FILE: tfplan.json  
+  when: manual
   only:
-    - tags
+    - master
