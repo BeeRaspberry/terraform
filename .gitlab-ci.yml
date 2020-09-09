@@ -9,7 +9,7 @@ decrypt:
   image:
     name: ubuntu:18.04
   before_script:
-    - apt update && apt install gnupg
+    - apt update && apt install -y gnupg
   script:
     - mkdir decrypt
     - gpg --batch --yes --passphrase="$PASS_PHRASE"
