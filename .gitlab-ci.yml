@@ -1,14 +1,15 @@
 stages:
   - build
   - validate
-  - plan
-  - deploy
+#  - plan
+#  - deploy
 
 decrypt:
   stage: build
   image:
     name: ubuntu:18.04
   script:
+    - sudo apt update && sudo apt install gnupg
     - mkdir decrypt
     - gpg --batch --yes --passphrase="$PASS_PHRASE"
       --output decrypt/github_credential.json 
