@@ -1,41 +1,47 @@
-
-image:
-  name: hashicorp/terraform:0.12.29
-  entrypoint:
-    - '/usr/bin/env'
-    - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-
-# Default output file for Terraform plan
-variables:
-  PLAN: plan.tfplan
-  JSON_PLAN_FILE: tfplan.json
-
-cache:
-  paths:
-    - .terraform
-
-before_script:
-  - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
-  - terraform --version
-  - cp ci_backend.tf ./google/backend.tf
-  - cd google
-  - >
-    gpg --batch --yes --passphrase="$PASS_PHRASE"
-    --output github_credential.json 
-    --decrypt github_credential.json.gpg
-  - |
-    cat <<EOF >terraform.tfvars
-    project_id           = "$PROJECT_ID"
-    bastion_members      = $BASTION_MEMBERS
-    ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
-    cluster_name         = "$CLUSTER_NAME"
-    cred_file            = "github_credential.json"
-    EOF
-  - terraform init
-
 stages:
-  - validate
   - build
+  - validate
+  - plan
+
+decrypt:
+  stage: build
+  script:
+    - mkdir decrypt
+    - gpg --batch --yes --passphrase="$PASS_PHRASE"
+      --output decrypt/github_credential.json 
+      --decrypt google/github_credential.json.gpg
+  cache:
+    key: decrypt-file
+    paths:
+      - decrypt/
+
+default:
+  image:
+    name: hashicorp/terraform:0.12.29
+    entrypoint:
+      - '/usr/bin/env'
+      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+
+  cache:
+    paths:
+      - .terraform
+      - decrypt-file
+
+  before_script:
+    - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
+    - terraform --version
+    - cp ci_backend.tf ./google/backend.tf
+    - cp decrypt/github_credential.json ./google/github_credential.json
+    - cd google
+    - |
+      cat <<EOF >terraform.tfvars
+      project_id           = "$PROJECT_ID"
+      bastion_members      = $BASTION_MEMBERS
+      ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
+      cluster_name         = "$CLUSTER_NAME"
+      cred_file            = "github_credential.json"
+      EOF
+    - terraform init
 
 validate:
   stage: validate
@@ -43,10 +49,14 @@ validate:
     - terraform validate
 
 plan:
-  stage: build
+  stage: plan
   script:
     - terraform plan -out=$PLAN
     - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
+  # Default output file for Terraform plan
+  variables:
+    PLAN: plan.tfplan
+    JSON_PLAN_FILE: tfplan.json
   artifacts:
     paths:
       - $PLAN
