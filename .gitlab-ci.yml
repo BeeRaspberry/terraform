@@ -14,9 +14,8 @@ decrypt:
       --output decrypt/github_credential.json 
       --decrypt google/github_credential.json.gpg
   cache:
-    key: decrypt-file
     paths:
-      - decrypt/
+      - decrypt
 
 default:
   image:
