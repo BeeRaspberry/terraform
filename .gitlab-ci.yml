@@ -5,6 +5,8 @@ stages:
 
 decrypt:
   stage: build
+  image:
+    name: ubuntu:18.04
   script:
     - mkdir decrypt
     - gpg --batch --yes --passphrase="$PASS_PHRASE"
@@ -30,7 +32,6 @@ default:
   before_script:
     - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
     - terraform --version
-    - cp ci_backend.tf ./google/backend.tf
     - cp decrypt/github_credential.json ./google/github_credential.json
     - cd google
     - |
@@ -62,3 +63,13 @@ plan:
       - $PLAN
     reports:
       terraform: $JSON_PLAN_FILE
+
+production:
+  stage: deploy
+  script:
+    - terraform apply $PLAN
+  variables:
+    PLAN: plan.tfplan
+    JSON_PLAN_FILE: tfplan.json  
+  only:
+    - tags
