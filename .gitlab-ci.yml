@@ -2,8 +2,8 @@ stages:
   - build
   - init
   - validate
-#  - plan
-#  - deploy
+  - plan
+  - deploy
 
 decrypt:
   stage: build
