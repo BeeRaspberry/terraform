@@ -33,7 +33,8 @@ default:
       - decrypt
   before_script:
     - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
-    - terraform --version
+    - ls -l
+    - cp decrypt/github_credential.json ./github_credential.json
     - cd google
     - |
       cat <<EOF >terraform.tfvars
@@ -50,7 +51,6 @@ init:
     - ls -l
     - ls -l decrypt
     - touch decrypt/this
-    - cp decrypt/github_credential.json ./github_credential.json
     - terraform init
 
 validate:
