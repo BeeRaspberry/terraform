@@ -33,8 +33,7 @@ default:
       - decrypt
   before_script:
     - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
-    - ls -l
-    - cp decrypt/github_credential.json ./github_credential.json
+    - cp decrypt/github_credential.json google/github_credential.json
     - cd google
     - |
       cat <<EOF >terraform.tfvars
@@ -55,34 +54,34 @@ validate:
   script:
     - terraform validate
 
-#plan:
-#  stage: plan
-#  cache:
-#    paths:
-#      - decrypt 
-#  script:
-#    - terraform plan -out=$PLAN
-#    - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
-#  # Default output file for Terraform plan
-#  variables:
-#    PLAN: plan.tfplan
-#    JSON_PLAN_FILE: tfplan.json
-#  artifacts:
-#    paths:
-#      - $PLAN
-#    reports:
-#      terraform: $JSON_PLAN_FILE
-#
-#production:
-#  stage: deploy
-#  cache:
-#    paths:
-#      - decrypt 
-#  script:
-#    - terraform apply $PLAN
-#  variables:
-#    PLAN: plan.tfplan
-#    JSON_PLAN_FILE: tfplan.json  
-#  when: manual
-#  only:
-#    - master
+plan:
+  stage: plan
+  cache:
+    paths:
+      - decrypt 
+  script:
+    - terraform plan -out=$PLAN
+    - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
+  # Default output file for Terraform plan
+  variables:
+    PLAN: plan.tfplan
+    JSON_PLAN_FILE: tfplan.json
+  artifacts:
+    paths:
+      - $PLAN
+    reports:
+      terraform: $JSON_PLAN_FILE
+
+production:
+  stage: deploy
+  cache:
+    paths:
+      - decrypt 
+  script:
+    - terraform apply $PLAN
+  variables:
+    PLAN: plan.tfplan
+    JSON_PLAN_FILE: tfplan.json  
+  when: manual
+  only:
+    - master
