@@ -32,7 +32,6 @@ default:
       - decrypt
   before_script:
     - apt install -y jq
-    - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
     - cp decrypt/github_credential.json google/github_credential.json
     - cd google
     - |
@@ -57,16 +56,11 @@ plan:
       - decrypt 
   script:
     - terraform plan -out=$PLAN
-    - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
-  # Default output file for Terraform plan
   variables:
     PLAN: plan.tfplan
-    JSON_PLAN_FILE: tfplan.json
   artifacts:
     paths:
       - $PLAN
-    reports:
-      terraform: $JSON_PLAN_FILE
 
 production:
   stage: deploy
@@ -77,7 +71,6 @@ production:
     - terraform apply $PLAN
   variables:
     PLAN: plan.tfplan
-    JSON_PLAN_FILE: tfplan.json  
   when: manual
   only:
     - master
