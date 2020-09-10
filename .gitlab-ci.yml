@@ -15,6 +15,8 @@ decrypt:
     - gpg --batch --yes --passphrase="$PASS_PHRASE"
       --output decrypt/github_credential.json 
       --decrypt google/github_credential.json.gpg
+    - ls -l
+    - ls -l decrypt
   cache:
     paths:
       - decrypt
@@ -45,6 +47,9 @@ default:
 init:
   stage: init
   script:
+    - ls -l
+    - ls -l decrypt
+    - touch decrypt/this
     - cp decrypt/github_credential.json ./github_credential.json
     - terraform init
 
