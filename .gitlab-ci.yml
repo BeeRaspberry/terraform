@@ -1,5 +1,6 @@
 stages:
   - build
+  - init
   - validate
 #  - plan
 #  - deploy
@@ -32,7 +33,6 @@ default:
     - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
     - terraform --version
     - cd google
-    - cp decrypt/github_credential.json ./github_credential.json
     - |
       cat <<EOF >terraform.tfvars
       project_id           = "$PROJECT_ID"
@@ -41,14 +41,17 @@ default:
       cluster_name         = "$CLUSTER_NAME"
       cred_file            = "github_credential.json"
       EOF
+
+init:
+  stage: init
+  script:
+    - cp decrypt/github_credential.json ./github_credential.json
     - terraform init
 
 validate:
-  stage: validate
-  cache:
-    paths:
-      - decrypt 
+  stage: validate 
   script:
+    - cp decrypt/github_credential.json ./github_credential.json
     - terraform validate
 
 #plan:
