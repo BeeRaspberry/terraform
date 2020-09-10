@@ -1,0 +1,67 @@
+version: 2.1
+
+orbs:
+  slack: circleci/slack@3.4.2
+
+workflows:
+  terraform_check:
+    jobs:
+      - setup:
+          context: GCP 
+      - plan_apply:
+          context: GCP
+          requires:
+            - setup
+
+jobs:
+  setup:
+    docker:
+      - image: circleci/buildpack-deps:latest
+    steps:
+      - checkout
+      - run:
+          name: Replace backend.tf for local storage
+          command: cp ci_backend.tf ./google/backend.tf
+      - run:
+          name: Decrypt gcp credentials
+          command: |
+            gpg --quiet --batch --yes -d --passphrase="$PASS_PHRASE" \
+            -o ./google/github_credential.json ./google/github_credential.json.gpg
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
+          # taken to be the root directory of the workspace.
+          root: google
+          # Must be relative path from root
+          paths:
+            - .
+      - slack/notify:
+          color: '#42e2f4'
+          message: This is a custom message notification
+    
+  plan_apply:
+    docker:
+      - image: hashicorp/terraform:0.12.29
+    working_directory: /tmp/workspace
+    steps:
+      - attach_workspace:
+        # Must be absolute path or relative path from working_directory
+          at: /tmp/workspace
+
+      - run:
+          name: create terraform.tfvars
+          command: |
+            cat \<<EOF >terraform.tfvars
+            project_id           = "$PROJECT_ID"
+            bastion_members      = $BASTION_MEMBERS
+            ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
+            cluster_name         = "$CLUSTER_NAME"
+            region               = "$REGION"
+            regional             = false
+            cred_file            = "github_credential.json"
+            EOF
+
+      - run:
+          name: terraform init & plan
+          command: |
+            terraform init -input=false
+            terraform plan -out tfapply -var-file terraform.tfvars

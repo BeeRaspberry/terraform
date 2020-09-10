@@ -1,0 +1,95 @@
+name: 'Terraform Code Check'
+on:
+  - pull_request
+  - push
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    env:
+      WORKING_DIR: ./google
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TERRAFORM_VERSION: 0.12.29
+
+    defaults:
+      run:
+        working-directory: ./google
+    
+    steps:
+    - uses: actions/checkout@v2
+    - uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+ 
+    - name: Decrypt gcp credentials
+  #    working-directory: ${{ env.WORKING_DIR }}
+      run: |
+        gpg --quiet --batch --yes --decrypt --passphrase="${{ secrets.GCP_PASSPHRASE }}" \
+        --output github_credential.json github_credential.json.gpg
+
+    - name: create terraform.tfvars
+      working-directory: ${{ env.WORKING_DIR }}
+      run: |
+        cat <<EOF >terraform.tfvars
+        project_id           = "${{ secrets.GCP_PROJECT_ID }}"
+        bastion_members      = ${{ secrets.BASTION_MEMBERS }}
+        ip_source_ranges_ssh = ${{ secrets.IP_SOURCES }}
+        cluster_name         = "${{ secrets.CLUSTER_NAME }}"
+        domain_name          = "${{ secrets.DOMAIN_NAME }}"
+        cred_file            = "github_credential.json"
+        EOF
+
+    - name: Terraform fmt
+      id: fmt
+      run: terraform fmt
+      continue-on-error: true
+      
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+      
+    - name: Terraform Plan
+      id: plan
+      run: terraform plan -no-color
+      continue-on-error: true
+
+    - uses: actions/github-script@0.9.0
+      if: github.event_name == 'pull_request'
+      env:
+        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
+          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+      
+          <details><summary>Show Plan</summary>
+      
+          \`\`\`${process.env.PLAN}\`\`\`
+      
+          </details>
+      
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+        
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+
+# https://github.com/marketplace/actions/slack-notify
+    - name: Slack Notification
+      uses: rtCamp/action-slack-notify@master
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_TITLE: Github Action - ${GITHUB_REPOSITORY}
+        SLACK_MESSAGE: Workflow Ran
+
