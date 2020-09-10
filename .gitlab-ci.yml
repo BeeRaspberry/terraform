@@ -31,6 +31,7 @@ default:
       - .terraform
       - decrypt
   before_script:
+    - apk update && apk add jq
     - cp decrypt/github_credential.json google/github_credential.json
     - cd google
     - |
