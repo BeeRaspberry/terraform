@@ -31,7 +31,6 @@ default:
       - .terraform
       - decrypt
   before_script:
-    - apt install -y jq
     - cp decrypt/github_credential.json google/github_credential.json
     - cd google
     - |
