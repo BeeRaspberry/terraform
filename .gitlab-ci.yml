@@ -11,7 +11,6 @@ decrypt:
   before_script:
     - apt update && apt install -y gnupg
   script:
-    - mkdir decrypt
     - gpg --batch --yes --passphrase="$PASS_PHRASE"
       --output decrypt/github_credential.json 
       --decrypt google/github_credential.json.gpg
@@ -32,6 +31,7 @@ default:
     - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
     - terraform --version
     - cd google
+    - cp decrypt/github_credential.json ./github_credential.json
     - |
       cat <<EOF >terraform.tfvars
       project_id           = "$PROJECT_ID"
@@ -48,16 +48,14 @@ validate:
     paths:
       - decrypt 
   script:
-    - cp decrypt/github_credential.json ./google/github_credential.json
     - terraform validate
-    
+
 #plan:
 #  stage: plan
 #  cache:
 #    paths:
 #      - decrypt 
 #  script:
-#    - cp decrypt/github_credential.json ./google/github_credential.json
 #    - terraform plan -out=$PLAN
 #    - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
 #  # Default output file for Terraform plan
@@ -76,7 +74,6 @@ validate:
 #    paths:
 #      - decrypt 
 #  script:
-#    - cp decrypt/github_credential.json ./google/github_credential.json
 #    - terraform apply $PLAN
 #  variables:
 #    PLAN: plan.tfplan
