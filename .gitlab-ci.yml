@@ -48,15 +48,11 @@ default:
 init:
   stage: init
   script:
-    - ls -l
-    - ls -l decrypt
-    - touch decrypt/this
     - terraform init
 
 validate:
   stage: validate 
   script:
-    - cp decrypt/github_credential.json ./github_credential.json
     - terraform validate
 
 #plan:
