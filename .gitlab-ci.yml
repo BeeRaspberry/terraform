@@ -1,6 +1,5 @@
 stages:
   - build
-  - init
   - validate
   - plan
   - deploy
@@ -43,10 +42,6 @@ default:
       cluster_name         = "$CLUSTER_NAME"
       cred_file            = "github_credential.json"
       EOF
-
-init:
-  stage: init
-  script:
     - terraform init
 
 validate:
