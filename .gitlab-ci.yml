@@ -23,12 +23,12 @@ before_script:
     --output $PROVIDER_DIR/github_credential.json 
     --decrypt $PROVIDER_DIR/github_credential.json.gpg
   - |
-    cat <<EOF >terraform.tfvars
+    cat <<EOF >$PROVIDER_DIR/terraform.tfvars
     project_id           = "$PROJECT_ID"
     bastion_members      = $BASTION_MEMBERS
     ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
     cluster_name         = "$CLUSTER_NAME"
-    cred_file            = "github_credential.json"
+    cred_file            = "${PROVIDER_DIR}/github_credential.json"
     EOF
   - terraform init $PROVIDER_DIR
 
@@ -41,7 +41,7 @@ plan:
   stage: plan
   script:
     - terraform plan -out=$PLAN $PROVIDER_DIR
-    - "terraform show --json $PLAN $PROVIDER_PLAN | convert_report > $JSON_PLAN_FILE"
+    - "terraform show --json $PLAN $PROVIDER_DIR | convert_report > $JSON_PLAN_FILE"
     - ls -l
   artifacts:
     paths:
