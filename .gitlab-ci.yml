@@ -3,31 +3,34 @@ stages:
   - plan
   - deploy
 
-default:
-  image:
-    name: hashicorp/terraform:0.12.29
-    entrypoint:
-      - '/usr/bin/env'
-      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-  cache:
-    paths:
-      - .terraform
-  before_script:
-    - apk update && apk add jq gnupg
-    - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
-    - gpg --batch --yes --passphrase="$PASS_PHRASE"
-      --output google/github_credential.json 
-      --decrypt google/github_credential.json.gpg
-    - cd google
-    - |
-      cat <<EOF >terraform.tfvars
-      project_id           = "$PROJECT_ID"
-      bastion_members      = $BASTION_MEMBERS
-      ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
-      cluster_name         = "$CLUSTER_NAME"
-      cred_file            = "github_credential.json"
-      EOF
-    - terraform init
+image:
+  name: hashicorp/terraform:0.12.29
+  entrypoint:
+    - '/usr/bin/env'
+    - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  # Default output file for Terraform plan
+variables:
+  PLAN: plan.tfplan
+  JSON_PLAN_FILE: tfplan.json
+cache:
+  paths:
+    - .terraform
+before_script:
+  - apk update && apk add jq gnupg
+  - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
+  - gpg --batch --yes --passphrase="$PASS_PHRASE"
+    --output google/github_credential.json 
+    --decrypt google/github_credential.json.gpg
+  - cd google
+  - |
+    cat <<EOF >terraform.tfvars
+    project_id           = "$PROJECT_ID"
+    bastion_members      = $BASTION_MEMBERS
+    ip_source_ranges_ssh = $IP_SOURCE_RANGES_SSH
+    cluster_name         = "$CLUSTER_NAME"
+    cred_file            = "github_credential.json"
+    EOF
+  - terraform init
 
 validate:
   stage: validate 
