@@ -12,6 +12,7 @@ image:
 variables:
   PLAN: plan.tfplan
   JSON_PLAN_FILE: tfplan.json
+  PROVIDER_DIR: google
 cache:
   paths:
     - .terraform
@@ -19,9 +20,8 @@ before_script:
   - apk update && apk add jq gnupg
   - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
   - gpg --batch --yes --passphrase="$PASS_PHRASE"
-    --output google/github_credential.json 
-    --decrypt google/github_credential.json.gpg
-  - cd google
+    --output $PROVIDER_DIR/github_credential.json 
+    --decrypt $PROVIDER_DIR/github_credential.json.gpg
   - |
     cat <<EOF >terraform.tfvars
     project_id           = "$PROJECT_ID"
@@ -30,18 +30,18 @@ before_script:
     cluster_name         = "$CLUSTER_NAME"
     cred_file            = "github_credential.json"
     EOF
-  - terraform init
+  - terraform init $PROVIDER_DIR
 
 validate:
   stage: validate 
   script:
-    - terraform validate
+    - terraform validate $PROVIDER_DIR
 
 plan:
   stage: plan
   script:
-    - terraform plan -out=$PLAN
-    - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
+    - terraform plan -out=$PLAN $PROVIDER_DIR
+    - "terraform show --json $PLAN $PROVIDER_PLAN | convert_report > $JSON_PLAN_FILE"
     - ls -l
   artifacts:
     paths:
@@ -52,7 +52,7 @@ plan:
 production:
   stage: deploy
   script:
-    - terraform apply -input=false $PLAN
+    - terraform apply -input=false $PLAN $PROVIDER_DIR
   dependencies:
     - plan
   when: manual
