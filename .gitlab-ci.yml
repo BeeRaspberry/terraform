@@ -1,24 +1,7 @@
 stages:
-  - build
   - validate
   - plan
   - deploy
-
-decrypt:
-  stage: build
-  image:
-    name: ubuntu:18.04
-  before_script:
-    - apt update && apt install -y gnupg
-  script:
-    - gpg --batch --yes --passphrase="$PASS_PHRASE"
-      --output decrypt/github_credential.json 
-      --decrypt google/github_credential.json.gpg
-    - ls -l
-    - ls -l decrypt
-  cache:
-    paths:
-      - decrypt
 
 default:
   image:
@@ -29,11 +12,12 @@ default:
   cache:
     paths:
       - .terraform
-      - decrypt
   before_script:
     - apk update && apk add jq gnupg
     - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
-    - cp decrypt/github_credential.json google/github_credential.json
+    - gpg --batch --yes --passphrase="$PASS_PHRASE"
+      --output google/github_credential.json 
+      --decrypt google/github_credential.json.gpg
     - cd google
     - |
       cat <<EOF >terraform.tfvars
@@ -52,9 +36,6 @@ validate:
 
 plan:
   stage: plan
-  cache:
-    paths:
-      - decrypt
   script:
     - terraform plan -out=$PLAN
     - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
@@ -70,9 +51,6 @@ plan:
 
 production:
   stage: deploy
-  cache:
-    paths:
-      - decrypt 
   script:
     - terraform apply -input=false $PLAN
   dependencies:
