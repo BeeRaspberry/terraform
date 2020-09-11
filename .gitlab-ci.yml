@@ -39,10 +39,11 @@ plan:
   script:
     - terraform plan -out=$PLAN
     - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
+    - ls -l
   # Default output file for Terraform plan
   variables:
-    PLAN: plan.tfplan
-    JSON_PLAN_FILE: tfplan.json
+    PLAN: google/plan.tfplan
+    JSON_PLAN_FILE: google/tfplan.json
   artifacts:
     paths:
       - $PLAN
@@ -56,7 +57,7 @@ production:
   dependencies:
     - plan
   variables:
-    PLAN: plan.tfplan
+    PLAN: google/plan.tfplan
   when: manual
   only:
     - master
