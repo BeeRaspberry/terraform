@@ -42,8 +42,8 @@ plan:
     - ls -l
   # Default output file for Terraform plan
   variables:
-    PLAN: google/plan.tfplan
-    JSON_PLAN_FILE: google/tfplan.json
+    PLAN: plan.tfplan
+    JSON_PLAN_FILE: tfplan.json
   artifacts:
     paths:
       - $PLAN
@@ -57,7 +57,7 @@ production:
   dependencies:
     - plan
   variables:
-    PLAN: google/plan.tfplan
+    PLAN: plan.tfplan
   when: manual
   only:
     - master
