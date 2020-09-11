@@ -31,7 +31,7 @@ default:
       - .terraform
       - decrypt
   before_script:
-    - apk update && apk add jq
+    - apk update && apk add jq gnupg
     - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
     - cp decrypt/github_credential.json google/github_credential.json
     - cd google
@@ -54,7 +54,7 @@ plan:
   stage: plan
   cache:
     paths:
-      - decrypt 
+      - decrypt
   script:
     - terraform plan -out=$PLAN
     - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
@@ -74,7 +74,9 @@ production:
     paths:
       - decrypt 
   script:
-    - terraform apply $PLAN
+    - terraform apply -input=false $PLAN
+  dependencies:
+    - plan
   variables:
     PLAN: plan.tfplan
   when: manual
