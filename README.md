@@ -26,3 +26,4 @@ Detailed instructions for cloud providers maybe found in their respective folder
 *   run `terraform init`
 *   run `terraform plan` or `terraform plan -out <file name>`
 *   run `terraform apply` or `terraform apply <file name>`
+
