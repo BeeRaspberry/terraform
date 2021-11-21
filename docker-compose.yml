@@ -1,0 +1,59 @@
+version: "3"
+services:
+  flaskapp:
+    image: flaskapp:latest
+    links:
+    - db
+    ports:
+    - "8000:8000"
+    networks:
+      - db_network
+      - backend_network
+    environment:
+      DATABASE_TYPE: 'postgres'
+      DATABASE_NAME: 'beehive'
+      DATABASE_USER:  'flaskapp'
+      DATABASE_PASSWORD: 'changepassword'
+      DATABASE_HOST: 'db'
+      DATABASE_PORT: 5432
+    depends_on:
+      - db
+
+  db:
+    image: postgres:10.6
+    ports:
+    - "5423:5432"
+    environment:
+      POSTGRES_USER: "flaskapp"
+      POSTGRES_PASSWORD: "changepassword"
+
+    volumes:
+      - db-data:/Users/pwhite/data/postgres
+    networks:
+      - db_network
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  angular:
+    image: angular:latest
+
+    ports:
+      - "8080:80"
+#    volumes:
+#      - ./conf.d:/Users/pwhite/Documents/git/bee_infra
+    networks:
+      - backend_network
+      - frontend_network
+
+
+networks:
+  frontend_network:
+    driver: bridge
+  backend_network:
+    driver: bridge
+  db_network:
+    driver: bridge
+
+volumes:
+  db-data:
