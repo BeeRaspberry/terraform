@@ -1,0 +1,36 @@
+{
+  "variables": {
+    "project_id": "",
+    "source_image": "",
+    "zone": ""
+  },
+  "builders": [
+    {
+      "type": "googlecompute",
+      "project_id": "{{user `project_id`}}",
+      "source_image": "{{user `source_image`}}",
+      "ssh_username": "packer",
+      "zone": "{{user `zone`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sudo rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-1.el7.nux.noarch.rpm",
+        "sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc",
+        "sudo sh -c 'echo -e \"[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\" > /etc/yum.repos.d/vscode.repo'",
+        "sudo yum update -y",
+        "sudo yum -y groupinstall \"GNOME Desktop\" \"Graphical Administration Tools\"",
+        "sudo ln -sf /lib/systemd/system/runlevel5.target /etc/systemd/system/default.target",
+        "sudo yum install -y xrdp tigervnc.server git",
+        "sudo systemctl start xrdp.service",
+        "sudo systemctl enable xrdp.service\"echo not overridden\""
+      ],
+      "valid_exit_codes": [
+        0,
+        1
+      ]
+    }
+  ]
+}

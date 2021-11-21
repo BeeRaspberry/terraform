@@ -28,17 +28,13 @@ variable "project_id" {
   description = "The project ID to host the cluster in"
 }
 
-variable "environment" {
-  default = "development"
-}
-
 variable "cluster_name" {
   description = "The name of the cluster"
-  default     = "my-cluster"
+  default     = "safer-cluster-iap-bastion"
 }
 
 variable "domain_name" {
-  description = "Domain name used in the cluster."
+  description = "Domain and zone name used in the cluster."
   default     = ""
 }
 
@@ -97,7 +93,7 @@ variable "horizontal_pod_autoscaling" {
 
 variable "http_load_balancing" {
   type        = bool
-  description = "Enable httpload balancer addon. The addon allows whomever can create Ingress objects to expose an application to a public IP. Network policies or Gatekeeper policies should be used to verify that only authorized applications are exposed."
+  description = "Enable httpload balancer addon. The addon allows whoever can create Ingress objects to expose an application to a public IP. Network policies or Gatekeeper policies should be used to verify that only authorized applications are exposed."
   default     = true
 }
 
@@ -125,24 +121,20 @@ variable "ip_source_ranges_ssh" {
   default     = []
 }
 
-variable "node_min_count" {
-  default = 1
-}
-
-variable "node_max_count" {
-  default = 1
-}
-
-variable "node_machine_type" {
-  default = "n2-standard-2"
-}
-
-variable "node_preemptible" {
-  default = true
-}
-
-variable "node_auto_upgrade" {
-  default = true
+variable "node_pools" {
+  description = "Node pool(s) for GKE"
+  type        = list(map(string))
+  default = [
+    {
+      preemptible   = true
+      name          = "default-node-pool"
+      min_count     = 1
+      max_count     = 4
+      machine_type  = "n1-standard-2"
+      auto_upgrade  = true
+      node_metadata = "GKE_METADATA_SERVER"
+    }
+  ]
 }
 
 variable "node_pools_labels" {
@@ -249,11 +241,6 @@ variable "istio" {
   default     = false
 }
 
-variable "letsencrypt" {
-  description = "Letsencrypt will be used for certificate management so create service accounts for it."
-  default     = true
-}
-
 variable "default_max_pods_per_node" {
   description = "The maximum number of pods to schedule per node"
   default     = 110
@@ -266,13 +253,6 @@ variable "database_encryption" {
     state    = "DECRYPTED"
     key_name = ""
   }]
-}
-variable "db_machine_type" {
-  default = "db-f1-micro"
-}
-
-variable "db_version" {
-  default = "POSTGRES_12"
 }
 
 variable "cloudrun" {
@@ -366,21 +346,12 @@ variable "notification_list" {
 
 locals {
   bastion_name = format("%s-bastion", var.cluster_name)
+  network_name = format("%s-network", var.cluster_name)
+  subnet_name  = format("%s-subnet", var.cluster_name)
   stub_domains = {
-    (var.domain_name) = [
+    "${var.domain_name}" = [
       "10.254.154.11",
       "10.254.154.12",
     ]
   }
-  node_pools = [
-    {
-      preemptible   = var.node_preemptible
-      name          = "default-node-pool"
-      min_count     = var.node_min_count
-      max_count     = var.node_max_count
-      machine_type  = var.node_machine_type
-      auto_upgrade  = var.node_auto_upgrade
-      node_metadata = "GKE_METADATA_SERVER"
-    }
-  ]
 }
